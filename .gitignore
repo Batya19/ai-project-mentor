@@ -1,0 +1,53 @@
+# ------------------------------
+# Frontend (Node.js / Vite / React / TailwindCSS)
+# ------------------------------
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/.cache/
+frontend/.parcel-cache/
+frontend/.eslintcache
+frontend/*.tsbuildinfo
+frontend/coverage/
+
+# ------------------------------
+# Backend (Python / FastAPI)
+# ------------------------------
+backend/__pycache__/
+backend/*.py[cod]
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.ruff_cache/
+backend/.hypothesis/
+backend/.coverage
+backend/htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+backend/.venv/
+backend/venv/
+backend/env/
+
+# ------------------------------
+# Environment variable files
+# ------------------------------
+.env
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# ------------------------------
+# IDE/editor config
+# ------------------------------
+.vscode/
+.idea/
+*.iml
