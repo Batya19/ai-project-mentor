@@ -22,6 +22,7 @@ backend/.ruff_cache/
 backend/.hypothesis/
 backend/.coverage
 backend/htmlcov/
+backend/*.db
 
 # Virtual environments
 .venv/
