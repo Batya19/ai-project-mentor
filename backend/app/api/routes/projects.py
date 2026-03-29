@@ -7,6 +7,7 @@ from app.models.user import User
 from app.schemas.project import ProjectCreate, ProjectResponse, ProjectUpdate
 from app.services.project_service import (
     create_project as service_create_project,
+    delete_project as service_delete_project,
     get_project as service_get_project,
     list_projects as service_list_projects,
     update_project as service_update_project,
@@ -49,3 +50,12 @@ def update_project(
     current_user: User = Depends(get_current_user),
 ) -> ProjectResponse:
     return service_update_project(db, project_id, current_user.id, payload)
+
+
+@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_project(
+    project_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> None:
+    service_delete_project(db, project_id, current_user.id)

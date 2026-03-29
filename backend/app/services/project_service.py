@@ -58,3 +58,10 @@ def update_project(db: Session, project_id: str, user_id: str, payload: ProjectU
     db.commit()
     db.refresh(project)
     return project
+
+
+def delete_project(db: Session, project_id: str, user_id: str) -> None:
+    """Delete a project, ensuring it belongs to the user."""
+    project = get_project_for_user_or_404(db, project_id, user_id)
+    db.delete(project)
+    db.commit()
