@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     app_env: str = "development"
     app_host: str = "0.0.0.0"
     app_port: int = 8000
-    database_url: str = "sqlite:///./ai_project_mentor.db"
-    jwt_secret_key: str = "change_me_in_production"
+    database_url: str
+    jwt_secret_key: str
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
 
