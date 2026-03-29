@@ -29,29 +29,23 @@ def list_projects(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[ProjectResponse]:
-    projects = (
-        db.query(Project)
-        .filter(Project.user_id == current_user.id)
-        .order_by(Project.created_at.desc())
-        .all()
-    )
-    return projects
+    return service_list_projects(db, current_user.id)
 
 
 @router.get("/{project_id}", response_model=ProjectResponse)
 def get_project(
     project_id: str,
     db: Session = Depends(get_db),
-    return service_list_projects(db, current_user.id)
+    current_user: User = Depends(get_current_user),
+) -> ProjectResponse:
+    return service_get_project(db, project_id, current_user.id)
+
+
+@router.put("/{project_id}", response_model=ProjectResponse)
+def update_project(
     project_id: str,
-    payloadservice_get_project
+    payload: ProjectUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> ProjectResponse:
-    project = _get_project_for_user_or_404(db, project_id, current_user.id)
-
-    updates = payload.model_dump(exclude_unset=True)
-    for field_name, field_value in updates.items():
-        setattr(project, field_name, field_value)
-
     return service_update_project(db, project_id, current_user.id, payload)
