@@ -2,9 +2,11 @@ from fastapi import FastAPI
 
 from app.api.routes.auth import router as auth_router
 from app.api.routes.health import router as health_router
+from app.api.routes.projects import router as projects_router
 from app.core.config import settings
 from app.db.base import Base
 from app.db.session import engine
+from app.models.project import Project
 from app.models.user import User
 
 
@@ -14,10 +16,12 @@ def create_app() -> FastAPI:
 
     # Import models and create tables during early development.
     User
+    Project
     Base.metadata.create_all(bind=engine)
 
     app.include_router(health_router)
     app.include_router(auth_router)
+    app.include_router(projects_router)
     return app
 
 

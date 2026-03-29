@@ -1,0 +1,40 @@
+from datetime import datetime
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class ProjectCreate(BaseModel):
+    title: str = Field(min_length=2, max_length=255)
+    description: str = Field(min_length=10)
+    level: str = Field(min_length=2, max_length=50)
+    technologies: list[str] = Field(default_factory=list)
+    roadmap: list[dict[str, Any]] = Field(default_factory=list)
+    tasks: list[dict[str, Any]] = Field(default_factory=list)
+    progress: int = Field(default=0, ge=0, le=100)
+
+
+class ProjectUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=2, max_length=255)
+    description: str | None = Field(default=None, min_length=10)
+    level: str | None = Field(default=None, min_length=2, max_length=50)
+    technologies: list[str] | None = None
+    roadmap: list[dict[str, Any]] | None = None
+    tasks: list[dict[str, Any]] | None = None
+    progress: int | None = Field(default=None, ge=0, le=100)
+
+
+class ProjectResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    user_id: str
+    title: str
+    description: str
+    level: str
+    technologies: list[str]
+    roadmap: list[dict[str, Any]]
+    tasks: list[dict[str, Any]]
+    progress: int
+    created_at: datetime
+    updated_at: datetime
