@@ -21,6 +21,9 @@ class Project(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     level: Mapped[str] = mapped_column(String(50), nullable=False)
+    domain: Mapped[str] = mapped_column(String(100), default="general", nullable=False)
+    business_value: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    unique_aspects: Mapped[str] = mapped_column(Text, default="", nullable=False)
 
     technologies: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     roadmap: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list, nullable=False)
