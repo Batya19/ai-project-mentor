@@ -1,8 +1,13 @@
-"""AI service for generating project ideas (mock implementation - completely free)."""
+"""AI service for generating project ideas using Google Gemini (free tier)."""
 
+import json
 from typing import Any
 
+import google.generativeai as genai
 
+from app.core.config import settings
+
+# Fallback mock templates when API key is not configured
 # Mock project templates for different combinations
 PROJECT_TEMPLATES = {
     ("junior", "web"): {
@@ -48,7 +53,8 @@ def generate_project_idea(
     level: str, technologies: list[str], domain: str
 ) -> dict[str, Any]:
     """
-    Generate a project idea (mock implementation - no API calls).
+    Generate a project idea using Google Gemini (free tier).
+    Falls back to mock templates if GEMINI_API_KEY is not configured.
     
     Args:
         level: Project level (junior, mid, advanced)
@@ -58,18 +64,84 @@ def generate_project_idea(
     Returns:
         Dictionary with generated project data
     """
-    # Normalize inputs
+    if settings.gemini_api_key and settings.gemini_api_key != "your_gemini_api_key_here":
+        return _generate_with_gemini(level, technologies, domain)
+    
+    return _generate_mock(level, domain)
+
+
+def _generate_with_gemini(level: str, technologies: list[str], domain: str) -> dict[str, Any]:
+    """Call Gemini API to generate a project idea."""
+    genai.configure(api_key=settings.gemini_api_key)
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    
+    prompt = f"""You are a senior software architect. Generate a detailed, portfolio-ready project idea.
+
+Constraints:
+- Experience level: {level}
+- Technologies: {', '.join(technologies)}
+- Domain: {domain}
+
+Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
+{{
+    "title": "Concise project name",
+    "description": "2-3 sentence description of the project",
+    "business_value": "Why this project has real-world value",
+    "unique_aspects": "What makes this project stand out in a portfolio",
+    "roadmap": [
+        {{
+            "phase": "Phase 1: Setup & Foundation",
+            "description": "What this phase achieves",
+            "goals": ["Specific goal 1", "Specific goal 2", "Specific goal 3"],
+            "deliverables": ["Deliverable 1", "Deliverable 2"]
+        }},
+        {{
+            "phase": "Phase 2: Core Features",
+            "description": "What this phase achieves",
+            "goals": ["Specific goal 1", "Specific goal 2"],
+            "deliverables": ["Deliverable 1", "Deliverable 2"]
+        }},
+        {{
+            "phase": "Phase 3: Polish & Deploy",
+            "description": "What this phase achieves",
+            "goals": ["Specific goal 1", "Specific goal 2"],
+            "deliverables": ["Deliverable 1", "Deliverable 2"]
+        }}
+    ],
+    "tasks": [
+        {{
+            "phase": "Phase 1: Setup & Foundation",
+            "name": "Specific task name",
+            "description": "What exactly needs to be done",
+            "estimated_hours": 3,
+            "completed": false
+        }}
+    ]
+}}
+
+Include 3-5 roadmap phases and 8-12 tasks spread across phases. Tailor complexity to {level} level."""
+
+    response = model.generate_content(prompt)
+    raw = response.text.strip()
+    
+    # Strip markdown code fences if present
+    if raw.startswith("```"):
+        raw = raw.split("```")[1]
+        if raw.startswith("json"):
+            raw = raw[4:]
+    raw = raw.strip()
+    
+    return json.loads(raw)
+
+
+def _generate_mock(level: str, domain: str) -> dict[str, Any]:
+    """Fallback mock generator when no API key is configured."""
     level_key = level.lower()
     domain_key = domain.lower()
-    
-    # Get base template or use default
+
     key = (level_key, domain_key)
-    if key in PROJECT_TEMPLATES:
-        template = PROJECT_TEMPLATES[key]
-    else:
-        # Fallback for unmapped combinations
-        template = PROJECT_TEMPLATES.get(("mid", "web"), PROJECT_TEMPLATES[("junior", "web")])
-    
+    template = PROJECT_TEMPLATES.get(key, PROJECT_TEMPLATES.get(("mid", "web"), PROJECT_TEMPLATES[("junior", "web")]))
+
     # Generate roadmap based on level
     if level_key == "junior":
         roadmap = [
