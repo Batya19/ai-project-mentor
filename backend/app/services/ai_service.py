@@ -3,7 +3,7 @@
 import json
 from typing import Any
 
-import google.generativeai as genai
+from google import genai
 
 from app.core.config import settings
 
@@ -54,26 +54,21 @@ def generate_project_idea(
 ) -> dict[str, Any]:
     """
     Generate a project idea using Google Gemini (free tier).
-    Falls back to mock templates if GEMINI_API_KEY is not configured.
-    
-    Args:
-        level: Project level (junior, mid, advanced)
-        technologies: List of technologies to use
-        domain: Project domain (web, ai, devops, games)
-    
-    Returns:
-        Dictionary with generated project data
+    Falls back to mock templates if GEMINI_API_KEY is not configured or quota is exceeded.
     """
     if settings.gemini_api_key and settings.gemini_api_key != "your_gemini_api_key_here":
-        return _generate_with_gemini(level, technologies, domain)
+        try:
+            return _generate_with_gemini(level, technologies, domain)
+        except Exception:
+            # Fall back to mock on any API error (quota, network, etc.)
+            pass
     
     return _generate_mock(level, domain)
 
 
 def _generate_with_gemini(level: str, technologies: list[str], domain: str) -> dict[str, Any]:
     """Call Gemini API to generate a project idea."""
-    genai.configure(api_key=settings.gemini_api_key)
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    client = genai.Client(api_key=settings.gemini_api_key)
     
     prompt = f"""You are a senior software architect. Generate a detailed, portfolio-ready project idea.
 
@@ -121,7 +116,7 @@ Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
 
 Include 3-5 roadmap phases and 8-12 tasks spread across phases. Tailor complexity to {level} level."""
 
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(model="gemini-2.0-flash-lite", contents=prompt)
     raw = response.text.strip()
     
     # Strip markdown code fences if present
