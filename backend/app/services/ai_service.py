@@ -1,9 +1,9 @@
-"""AI service for generating project ideas using Google Gemini (free tier)."""
+"""AI service for generating project ideas using Groq."""
 
 import json
 from typing import Any
 
-from google import genai
+from groq import Groq
 
 from app.core.config import settings
 
@@ -53,22 +53,22 @@ def generate_project_idea(
     level: str, technologies: list[str], domain: str
 ) -> dict[str, Any]:
     """
-    Generate a project idea using Google Gemini (free tier).
-    Falls back to mock templates if GEMINI_API_KEY is not configured or quota is exceeded.
+    Generate a project idea using Groq.
+    Falls back to mock templates if GROQ_API_KEY is not configured or the API fails.
     """
-    if settings.gemini_api_key and settings.gemini_api_key != "your_gemini_api_key_here":
+    if settings.groq_api_key and settings.groq_api_key != "your_groq_api_key_here":
         try:
-            return _generate_with_gemini(level, technologies, domain)
+            return _generate_with_groq(level, technologies, domain)
         except Exception:
-            # Fall back to mock on any API error (quota, network, etc.)
+            # Fall back to mock on any API error.
             pass
     
     return _generate_mock(level, domain)
 
 
-def _generate_with_gemini(level: str, technologies: list[str], domain: str) -> dict[str, Any]:
-    """Call Gemini API to generate a project idea."""
-    client = genai.Client(api_key=settings.gemini_api_key)
+def _generate_with_groq(level: str, technologies: list[str], domain: str) -> dict[str, Any]:
+    """Call Groq API to generate a project idea."""
+    client = Groq(api_key=settings.groq_api_key)
     
     prompt = f"""You are a senior software architect. Generate a detailed, portfolio-ready project idea.
 
@@ -116,8 +116,19 @@ Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
 
 Include 3-5 roadmap phases and 8-12 tasks spread across phases. Tailor complexity to {level} level."""
 
-    response = client.models.generate_content(model="gemini-2.0-flash-lite", contents=prompt)
-    raw = response.text.strip()
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        temperature=0.7,
+        response_format={"type": "json_object"},
+        messages=[
+            {
+                "role": "system",
+                "content": "You generate structured software project plans as strict JSON.",
+            },
+            {"role": "user", "content": prompt},
+        ],
+    )
+    raw = response.choices[0].message.content.strip()
     
     # Strip markdown code fences if present
     if raw.startswith("```"):

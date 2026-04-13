@@ -1,18 +1,29 @@
-"""Database migration script to update schema."""
+"""Additive schema sync helper for local development.
 
-import psycopg2
+This keeps existing data and adds the project columns introduced after the
+initial schema. It avoids destructive operations.
+"""
 
-try:
-    conn = psycopg2.connect('postgresql://postgres:postgres@localhost:5432/ai_project_mentor')
-    cur = conn.cursor()
-    
-    # Drop projects table to recreate with new schema
-    cur.execute("DROP TABLE IF EXISTS projects CASCADE;")
-    conn.commit()
-    print("✓ Dropped projects table")
-    
-    cur.close()
-    conn.close()
-    print("✓ Database migration complete")
-except Exception as e:
-    print(f"✗ Error: {e}")
+from sqlalchemy import text
+
+from app.db.session import engine
+
+
+STATEMENTS = [
+    "ALTER TABLE projects ADD COLUMN IF NOT EXISTS domain VARCHAR(100) NOT NULL DEFAULT 'general'",
+    "ALTER TABLE projects ADD COLUMN IF NOT EXISTS business_value TEXT NOT NULL DEFAULT ''",
+    "ALTER TABLE projects ADD COLUMN IF NOT EXISTS unique_aspects TEXT NOT NULL DEFAULT ''",
+]
+
+
+def main() -> None:
+    with engine.begin() as connection:
+        for statement in STATEMENTS:
+            connection.execute(text(statement))
+            print(f"Applied: {statement}")
+
+    print("Schema sync complete")
+
+
+if __name__ == "__main__":
+    main()

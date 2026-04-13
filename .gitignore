@@ -23,6 +23,7 @@ backend/.hypothesis/
 backend/.coverage
 backend/htmlcov/
 backend/*.db
+backend/**/*.db
 
 # Virtual environments
 .venv/
