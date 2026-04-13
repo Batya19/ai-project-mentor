@@ -1,17 +1,19 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link, useNavigate } from 'react-router-dom'
-import { projectsApi } from '../lib/api'
-import type { Project } from '../lib/api'
-import { useAuthStore } from '../store/authStore'
+﻿import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { Link, useNavigate } from "react-router-dom"
+import { projectsApi } from "../lib/api"
+import type { Project } from "../lib/api"
+import { useAuthStore } from "../store/authStore"
 
-function ProgressBar({ value }: { value: number }) {
+function LevelBadge({ level }: { level: string }) {
+  const styles: Record<string, string> = {
+    junior: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+    mid: "bg-amber-100 text-amber-700 border border-amber-200",
+    advanced: "bg-rose-100 text-rose-700 border border-rose-200",
+  }
   return (
-    <div className="w-full bg-gray-700 rounded-full h-1.5 mt-2">
-      <div
-        className="bg-indigo-500 h-1.5 rounded-full transition-all"
-        style={{ width: `${value}%` }}
-      />
-    </div>
+    <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full shrink-0 capitalize ${styles[level] ?? "bg-slate-100 text-slate-600"}`}>
+      {level}
+    </span>
   )
 }
 
@@ -19,7 +21,7 @@ function ProjectCard({ project }: { project: Project }) {
   const queryClient = useQueryClient()
   const deleteMutation = useMutation({
     mutationFn: () => projectsApi.delete(project.id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['projects'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects"] }),
   })
 
   const totalTasks = project.tasks?.length ?? 0
@@ -27,56 +29,59 @@ function ProjectCard({ project }: { project: Project }) {
   const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 flex flex-col gap-3 hover:border-indigo-700 transition">
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col gap-4 p-5">
       <div className="flex items-start justify-between gap-2">
-        <Link to={`/projects/${project.id}`} className="text-white font-semibold text-lg hover:text-indigo-300 transition line-clamp-2">
+        <Link
+          to={`/projects/${project.id}`}
+          className="text-slate-800 font-semibold text-base hover:text-violet-600 transition line-clamp-2 leading-snug"
+        >
           {project.title}
         </Link>
-        <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${
-          project.level === 'junior' ? 'bg-green-900 text-green-300' :
-          project.level === 'mid' ? 'bg-yellow-900 text-yellow-300' :
-          'bg-red-900 text-red-300'
-        }`}>
-          {project.level}
-        </span>
+        <LevelBadge level={project.level} />
       </div>
 
-      <p className="text-gray-400 text-sm line-clamp-2">{project.description}</p>
+      <p className="text-slate-500 text-sm line-clamp-2 leading-relaxed">{project.description}</p>
 
       {project.technologies?.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {project.technologies.slice(0, 4).map((tech) => (
-            <span key={tech} className="text-xs bg-gray-800 text-gray-300 px-2 py-0.5 rounded-md">
+            <span key={tech} className="text-xs bg-violet-50 text-violet-600 border border-violet-100 px-2 py-0.5 rounded-lg font-medium">
               {tech}
             </span>
           ))}
           {project.technologies.length > 4 && (
-            <span className="text-xs text-gray-500">+{project.technologies.length - 4} more</span>
+            <span className="text-xs text-slate-400">+{project.technologies.length - 4}</span>
           )}
         </div>
       )}
 
       <div>
-        <div className="flex justify-between text-xs text-gray-500">
-          <span>{doneTasks}/{totalTasks} tasks</span>
-          <span>{progress}%</span>
+        <div className="flex justify-between text-xs text-slate-400 mb-1.5">
+          <span>{doneTasks} of {totalTasks} tasks done</span>
+          <span className="font-medium text-violet-500">{progress}%</span>
         </div>
-        <ProgressBar value={progress} />
+        <div className="w-full bg-slate-100 rounded-full h-1.5">
+          <div
+            className="bg-violet-400 h-1.5 rounded-full transition-all"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
       </div>
 
-      <div className="flex items-center gap-3 mt-1">
+      <div className="flex items-center gap-2 pt-1 border-t border-slate-50">
         <Link
           to={`/projects/${project.id}`}
-          className="flex-1 text-center text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg py-1.5 transition"
+          className="flex-1 text-center text-sm bg-violet-50 hover:bg-violet-100 text-violet-600 font-medium rounded-xl py-2 transition"
         >
           View roadmap
         </Link>
         <button
           onClick={() => deleteMutation.mutate()}
           disabled={deleteMutation.isPending}
-          className="text-sm text-gray-500 hover:text-red-400 transition disabled:opacity-40"
+          className="text-sm text-slate-400 hover:text-rose-500 transition disabled:opacity-40 px-2 py-2"
+          title="Delete project"
         >
-          Delete
+          
         </button>
       </div>
     </div>
@@ -89,23 +94,29 @@ export default function DashboardPage() {
   const navigate = useNavigate()
 
   const { data: projects, isLoading, isError } = useQuery({
-    queryKey: ['projects'],
+    queryKey: ["projects"],
     queryFn: projectsApi.list,
   })
 
   function handleLogout() {
     logout()
-    navigate('/login')
+    navigate("/login")
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-slate-50">
       {/* Navbar */}
-      <nav className="border-b border-gray-800 px-6 py-4 flex items-center justify-between">
-        <span className="font-bold text-lg text-indigo-400">AI Project Mentor</span>
-        <div className="flex items-center gap-4 text-sm">
-          <span className="text-gray-400">{email}</span>
-          <button onClick={handleLogout} className="text-gray-500 hover:text-white transition">
+      <nav className="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 bg-violet-100 rounded-lg flex items-center justify-center text-sm"></div>
+          <span className="font-bold text-slate-800 text-base">AI Project Mentor</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-slate-400 hidden sm:block">{email}</span>
+          <button
+            onClick={handleLogout}
+            className="text-sm text-slate-500 hover:text-slate-800 transition font-medium"
+          >
             Log out
           </button>
         </div>
@@ -114,30 +125,35 @@ export default function DashboardPage() {
       <main className="max-w-5xl mx-auto px-6 py-10">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Your Projects</h1>
-            <p className="text-gray-400 text-sm mt-1">Track your AI-generated project roadmaps</p>
+            <h1 className="text-2xl font-bold text-slate-800">Your Projects</h1>
+            <p className="text-slate-400 text-sm mt-0.5">Track your AI-generated learning roadmaps</p>
           </div>
           <Link
             to="/generate"
-            className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
+            className="bg-violet-500 hover:bg-violet-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition shadow-sm"
           >
             + New project
           </Link>
         </div>
 
         {isLoading && (
-          <div className="text-center py-20 text-gray-500">Loading projects…</div>
+          <div className="text-center py-24 text-slate-400">Loading projects</div>
         )}
 
         {isError && (
-          <div className="text-center py-20 text-red-400">Failed to load projects.</div>
+          <div className="text-center py-24 text-rose-500">Failed to load projects.</div>
         )}
 
         {!isLoading && !isError && projects?.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-gray-500 mb-4">No projects yet.</p>
-            <Link to="/generate" className="text-indigo-400 hover:underline text-sm">
-              Generate your first project →
+          <div className="text-center py-24">
+            <div className="w-16 h-16 bg-violet-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl"></div>
+            <p className="text-slate-500 font-medium mb-1">No projects yet</p>
+            <p className="text-slate-400 text-sm mb-5">Generate your first AI-powered project idea</p>
+            <Link
+              to="/generate"
+              className="inline-block bg-violet-500 hover:bg-violet-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition shadow-sm"
+            >
+              Generate a project
             </Link>
           </div>
         )}
