@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { projectsApi } from "../lib/api"
 import type { Task } from "../lib/api"
+import ArchitectView from "../components/ArchitectView"
 
 const LEVEL_STYLE: Record<string, string> = {
   junior: "bg-emerald-100 text-emerald-700 border-emerald-200",
@@ -110,6 +111,7 @@ export default function ProjectDetailPage() {
   const totalTasks = project?.tasks?.length ?? 0
   const doneTasks = project?.tasks?.filter((t) => t.completed).length ?? 0
   const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0
+  const [archiView, setArchiView] = useState(false)
 
   if (isLoading) return <div className="min-h-screen bg-[#faf9ff] flex items-center justify-center text-slate-400">Loading</div>
   if (isError || !project) return <div className="min-h-screen bg-[#faf9ff] flex items-center justify-center text-rose-500">Failed to load project.</div>
@@ -158,26 +160,50 @@ export default function ProjectDetailPage() {
           <p className="text-xs text-slate-400">{doneTasks} of {totalTasks} tasks completed</p>
         </div>
 
-        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Roadmap</p>
-        <div className="space-y-3">
-          {project.roadmap.map((phase, i) => (
-            <PhaseAccordion
-              key={i} index={i} phaseName={phase.phase} description={phase.description}
-              tasks={project.tasks.filter((t) => t.phase === phase.phase)}
-              onToggle={handleToggle}
-            />
-          ))}
+        {/* ── View toggle ── */}
+        <div className="flex items-center gap-2 mb-5 bg-white/60 backdrop-blur border border-white/80 rounded-2xl p-1 w-fit shadow-sm">
+          <button
+            onClick={() => setArchiView(false)}
+            className={`text-xs font-bold px-4 py-2 rounded-xl transition ${
+              !archiView ? "bg-gradient-to-r from-violet-500 to-sky-500 text-white shadow-md shadow-violet-200" : "text-slate-400 hover:text-slate-600"
+            }`}>
+            📋 Roadmap
+          </button>
+          <button
+            onClick={() => setArchiView(true)}
+            className={`text-xs font-bold px-4 py-2 rounded-xl transition ${
+              archiView ? "bg-gradient-to-r from-violet-600 to-sky-600 text-white shadow-md shadow-violet-300" : "text-slate-400 hover:text-slate-600"
+            }`}>
+            🏗 Architect View
+          </button>
         </div>
 
-        {progress === 100 && (
-          <div className="mt-8 text-center py-10 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-3xl">
-            <p className="text-4xl mb-3"></p>
-            <p className="text-emerald-700 font-extrabold text-xl mb-1">Project complete!</p>
-            <p className="text-emerald-600 text-sm mb-6">You built something real. Amazing work!</p>
-            <button onClick={() => navigate("/generate")} className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold px-6 py-2.5 rounded-2xl text-sm shadow-lg shadow-emerald-200 transition">
-              Generate next project 
-            </button>
-          </div>
+        {archiView ? (
+          <ArchitectView project={project} />
+        ) : (
+          <>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Roadmap</p>
+            <div className="space-y-3">
+              {project.roadmap.map((phase, i) => (
+                <PhaseAccordion
+                  key={i} index={i} phaseName={phase.phase} description={phase.description}
+                  tasks={project.tasks.filter((t) => t.phase === phase.phase)}
+                  onToggle={handleToggle}
+                />
+              ))}
+            </div>
+
+            {progress === 100 && (
+              <div className="mt-8 text-center py-10 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-3xl">
+                <p className="text-4xl mb-3"></p>
+                <p className="text-emerald-700 font-extrabold text-xl mb-1">Project complete!</p>
+                <p className="text-emerald-600 text-sm mb-6">You built something real. Amazing work!</p>
+                <button onClick={() => navigate("/generate")} className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold px-6 py-2.5 rounded-2xl text-sm shadow-lg shadow-emerald-200 transition">
+                  Generate next project →
+                </button>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>
