@@ -50,7 +50,11 @@ PROJECT_TEMPLATES = {
 
 
 def generate_project_idea(
-    level: str, technologies: list[str], domain: str
+    level: str,
+    technologies: list[str],
+    domain: str,
+    business_value: str = "",
+    unique_aspects: str = "",
 ) -> dict[str, Any]:
     """
     Generate a project idea using Groq.
@@ -58,7 +62,13 @@ def generate_project_idea(
     """
     if settings.groq_api_key and settings.groq_api_key != "your_groq_api_key_here":
         try:
-            return _generate_with_groq(level, technologies, domain)
+            return _generate_with_groq(
+                level,
+                technologies,
+                domain,
+                business_value=business_value,
+                unique_aspects=unique_aspects,
+            )
         except Exception:
             # Fall back to mock on any API error.
             pass
@@ -66,18 +76,52 @@ def generate_project_idea(
     return _generate_mock(level, domain)
 
 
-def _generate_with_groq(level: str, technologies: list[str], domain: str) -> dict[str, Any]:
-    """Call Groq API to generate a project idea."""
-    client = Groq(api_key=settings.groq_api_key)
-    
-    prompt = f"""You are a senior software architect. Generate a detailed, portfolio-ready project idea.
+def _build_generation_prompt(
+    level: str,
+    technologies: list[str],
+    domain: str,
+    business_value: str = "",
+    unique_aspects: str = "",
+) -> str:
+    stack = ", ".join(technologies)
+    business_context = business_value.strip() or "Infer a concrete business outcome tied to the chosen domain."
+    uniqueness_context = unique_aspects.strip() or "Invent 2-3 specific differentiators that are technically credible for this stack."
 
-Constraints:
+    return f"""You are a principal software architect and startup product strategist.
+
+Design one project that feels specific, credible, and portfolio-worthy for this exact input.
+
+Project constraints:
 - Experience level: {level}
-- Technologies: {', '.join(technologies)}
+- Technologies: {stack}
 - Domain: {domain}
+- Desired business value: {business_context}
+- Desired uniqueness: {uniqueness_context}
 
-Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
+Quality bar:
+- Avoid generic ideas such as basic CRUD dashboards, task managers, blogs, e-commerce clones, generic chat apps, or "AI assistant" wrappers unless the input explicitly requires them.
+- Make the concept domain-specific with named user personas, real data objects, and a concrete workflow.
+- Use the provided technologies in a believable way. The roadmap and tasks must reference stack-specific implementation choices, not vague placeholders.
+- Every phase must move the product toward a real outcome, not just "build frontend" or "set up backend".
+- Every task must be concrete, implementation-ready, and tied to a feature, integration, data model, or operational concern.
+- Estimated hours must be realistic for a {level} engineer.
+- Repetition is failure. Vary the project shape, terminology, and roadmap structure.
+
+Output rules:
+- Return ONLY valid JSON.
+- Do not wrap JSON in markdown.
+- Use the exact schema below.
+- Title must be distinctive and not contain generic suffixes like "Platform", "Dashboard", or "System" unless strongly justified by the concept.
+- Description must be 2-3 sentences and include the core user, primary workflow, and why the idea matters.
+- business_value must name a measurable or operational benefit.
+- unique_aspects must mention 2-3 concrete differentiators.
+- Create 4-6 roadmap phases.
+- Create 10-14 tasks total.
+- Each roadmap phase must have 3-4 goals and 2-3 deliverables.
+- Each task name must start with a strong verb and avoid repeating the same verb too often.
+- At least 70% of tasks must mention a domain entity, workflow, integration, validation rule, analytics surface, automation, or deployment concern.
+
+Return this exact JSON structure:
 {{
     "title": "Concise project name",
     "description": "2-3 sentence description of the project",
@@ -88,18 +132,6 @@ Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
             "phase": "Phase 1: Setup & Foundation",
             "description": "What this phase achieves",
             "goals": ["Specific goal 1", "Specific goal 2", "Specific goal 3"],
-            "deliverables": ["Deliverable 1", "Deliverable 2"]
-        }},
-        {{
-            "phase": "Phase 2: Core Features",
-            "description": "What this phase achieves",
-            "goals": ["Specific goal 1", "Specific goal 2"],
-            "deliverables": ["Deliverable 1", "Deliverable 2"]
-        }},
-        {{
-            "phase": "Phase 3: Polish & Deploy",
-            "description": "What this phase achieves",
-            "goals": ["Specific goal 1", "Specific goal 2"],
             "deliverables": ["Deliverable 1", "Deliverable 2"]
         }}
     ],
@@ -112,18 +144,34 @@ Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
             "completed": false
         }}
     ]
-}}
+}}"""
 
-Include 3-5 roadmap phases and 8-12 tasks spread across phases. Tailor complexity to {level} level."""
+
+def _generate_with_groq(
+    level: str,
+    technologies: list[str],
+    domain: str,
+    business_value: str = "",
+    unique_aspects: str = "",
+) -> dict[str, Any]:
+    """Call Groq API to generate a project idea."""
+    client = Groq(api_key=settings.groq_api_key)
+    prompt = _build_generation_prompt(
+        level,
+        technologies,
+        domain,
+        business_value=business_value,
+        unique_aspects=unique_aspects,
+    )
 
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
-        temperature=0.7,
+        temperature=0.45,
         response_format={"type": "json_object"},
         messages=[
             {
                 "role": "system",
-                "content": "You generate structured software project plans as strict JSON.",
+                "content": "You generate specific, non-generic software project plans as strict JSON. Generic filler, repeated task phrasing, and stack-agnostic ideas are unacceptable.",
             },
             {"role": "user", "content": prompt},
         ],
@@ -273,6 +321,99 @@ def _generate_mock(level: str, domain: str) -> dict[str, Any]:
         "roadmap": roadmap,
         "tasks": tasks,
     }
+
+
+def generate_coach_message(
+    project_title: str,
+    level: str,
+    domain: str,
+    done_tasks: int,
+    total_tasks: int,
+    completed_phases: int,
+    total_phases: int,
+    daily_streak: int,
+    active_phase: str | None = None,
+) -> str:
+    """
+    Generate a short AI coaching message based on real project progress stats.
+    Returns an empty string when no API key is configured or the call fails,
+    so callers can fall back to deterministic copy without any error handling.
+    """
+    if not (settings.groq_api_key and settings.groq_api_key != "your_groq_api_key_here"):
+        return ""
+    try:
+        return _generate_coach_with_groq(
+            project_title=project_title,
+            level=level,
+            domain=domain,
+            done_tasks=done_tasks,
+            total_tasks=total_tasks,
+            completed_phases=completed_phases,
+            total_phases=total_phases,
+            daily_streak=daily_streak,
+            active_phase=active_phase,
+        )
+    except Exception:
+        return ""
+
+
+def _generate_coach_with_groq(
+    project_title: str,
+    level: str,
+    domain: str,
+    done_tasks: int,
+    total_tasks: int,
+    completed_phases: int,
+    total_phases: int,
+    daily_streak: int,
+    active_phase: str | None,
+) -> str:
+    """Call Groq to generate a short, project-specific coaching message."""
+    client = Groq(api_key=settings.groq_api_key)
+
+    progress_pct = round((done_tasks / total_tasks) * 100) if total_tasks > 0 else 0
+
+    lines = [
+        f'Project: "{project_title}"',
+        f"Level: {level} | Domain: {domain}",
+        "",
+        "Current state:",
+        f"- Tasks completed: {done_tasks}/{total_tasks} ({progress_pct}%)",
+        f"- Phases closed: {completed_phases}/{total_phases}",
+        f"- Active build streak (consecutive days with at least one completed task): {daily_streak} day(s)",
+    ]
+    if active_phase:
+        lines.append(f"- Currently active phase: {active_phase}")
+    else:
+        lines.append("- No active phase remaining (all work is done or not started)")
+
+    lines += [
+        "",
+        "Write a coaching message for this developer right now.",
+    ]
+
+    user_message = "\n".join(lines)
+
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        temperature=0.65,
+        max_tokens=90,
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are a direct, experienced technical mentor. "
+                    "Your job is to give one coaching message (2 sentences maximum) "
+                    "that is specific to the developer's real project progress. "
+                    "Reference the project by name or domain when it adds value. "
+                    "Be honest and tactical, not generic or cheerful. "
+                    "No greetings, no sign-offs, no bullet points — just the message."
+                ),
+            },
+            {"role": "user", "content": user_message},
+        ],
+    )
+    return response.choices[0].message.content.strip()
 
 
 def format_roadmap(roadmap_data: list[dict[str, Any]]) -> list[dict[str, Any]]:

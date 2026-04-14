@@ -165,3 +165,36 @@ def test_generate_project_defaults_optional_fields(client) -> None:
     assert body["domain"] == "general"
     assert body["business_value"] == ai_payload["business_value"]
     assert body["unique_aspects"] == ai_payload["unique_aspects"]
+
+
+def test_generate_project_passes_prompt_hints_to_ai_service(client) -> None:
+    token = register_and_login(client, email="generate-hints@example.com")
+
+    with patch("app.api.routes.projects.generate_project_idea", return_value={
+        "title": "Ops Signal Lens",
+        "description": "Tracks operational alerts and escalation quality.",
+        "business_value": "Cuts noisy alerts.",
+        "unique_aspects": "Correlates incidents with service ownership.",
+        "roadmap": [],
+        "tasks": [],
+    }) as generate_mock:
+        response = client.post(
+            "/api/projects/generate",
+            json={
+                "level": "advanced",
+                "technologies": ["FastAPI", "React", "PostgreSQL"],
+                "domain": "devops",
+                "business_value": "Reduce mean time to acknowledge incidents.",
+                "unique_aspects": "Use ownership graphs and escalation quality scoring.",
+            },
+            headers=auth_headers(token),
+        )
+
+    assert response.status_code == 201
+    generate_mock.assert_called_once_with(
+        level="advanced",
+        technologies=["FastAPI", "React", "PostgreSQL"],
+        domain="devops",
+        business_value="Reduce mean time to acknowledge incidents.",
+        unique_aspects="Use ownership graphs and escalation quality scoring.",
+    )

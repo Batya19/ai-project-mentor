@@ -39,6 +39,23 @@ class ProjectUpdate(BaseModel):
     progress: int | None = Field(default=None, ge=0, le=100)
 
 
+class CoachRequest(BaseModel):
+    """Structured project stats sent to the AI coach endpoint."""
+    project_title: str
+    level: str
+    domain: str
+    done_tasks: int
+    total_tasks: int
+    completed_phases: int
+    total_phases: int
+    daily_streak: int
+    active_phase: str | None = None
+
+
+class CoachResponse(BaseModel):
+    message: str
+
+
 class ProjectResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

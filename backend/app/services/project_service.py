@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -54,6 +56,27 @@ def update_project(db: Session, project_id: str, user_id: str, payload: ProjectU
     project = get_project_for_user_or_404(db, project_id, user_id)
 
     updates = payload.model_dump(exclude_unset=True)
+
+    if "tasks" in updates:
+        old_by_id = {t["id"]: t for t in (project.tasks or [])}
+        now = datetime.now(timezone.utc).isoformat()
+        stamped = []
+        for task in updates["tasks"]:
+            old = old_by_id.get(task.get("id", ""), {})
+            was_done = bool(old.get("completed", False))
+            is_done = bool(task.get("completed", False))
+            if is_done and not was_done:
+                # just completed — stamp with current time
+                task = {**task, "completed_at": now}
+            elif not is_done:
+                # uncompleted or never completed — no timestamp
+                task = {**task, "completed_at": None}
+            else:
+                # already completed — preserve the original timestamp
+                task = {**task, "completed_at": old.get("completed_at")}
+            stamped.append(task)
+        updates["tasks"] = stamped
+
     for field_name, field_value in updates.items():
         setattr(project, field_name, field_value)
 

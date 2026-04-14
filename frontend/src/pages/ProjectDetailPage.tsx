@@ -2,7 +2,7 @@
 import { useParams, Link, useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { projectsApi } from "../lib/api"
-import type { Task } from "../lib/api"
+import type { Project, Task } from "../lib/api"
 import ArchitectView from "../components/ArchitectView"
 import BrandLogo from "../components/BrandLogo"
 
@@ -46,22 +46,115 @@ const PHASE_COLORS = [
   { bg: "from-emerald-100 to-white", border: "border-emerald-200", num: "bg-gradient-to-br from-emerald-500 to-teal-500" },
 ]
 
+function computeDailyStreak(tasks: Task[]): number {
+  // Collect the local-date strings of each completed task.
+  const completedDates = tasks
+    .filter((t) => t.completed && t.completed_at)
+    .map((t) => new Date(t.completed_at!).toLocaleDateString("en-CA")) // YYYY-MM-DD
+
+  if (completedDates.length === 0) return 0
+
+  // Unique days, sorted descending.
+  const uniqueDays = [...new Set(completedDates)].sort().reverse()
+
+  // Walk backward from today counting consecutive calendar days.
+  const today = new Date().toLocaleDateString("en-CA")
+  let streak = 0
+  let expected = today
+
+  for (const day of uniqueDays) {
+    if (day === expected) {
+      streak += 1
+      // Move expected to the previous calendar day.
+      const prev = new Date(expected)
+      prev.setDate(prev.getDate() - 1)
+      expected = prev.toLocaleDateString("en-CA")
+    } else if (day < expected) {
+      // Gap — streak is broken.
+      break
+    }
+  }
+
+  return streak
+}
+
+/** Number of tasks completed within the last 48 h (for per-phase vibe). */
+function recentTaskCount(tasks: Task[]): number {
+  const cutoff = Date.now() - 48 * 60 * 60 * 1000
+  return tasks.filter(
+    (t) => t.completed && t.completed_at && new Date(t.completed_at).getTime() >= cutoff
+  ).length
+}
+
+function buildMotivationMessage({
+  totalTasks,
+  completedPhases,
+  totalPhases,
+  dailyStreak,
+  activePhaseName,
+}: {
+  totalTasks: number
+  completedPhases: number
+  totalPhases: number
+  dailyStreak: number
+  activePhaseName?: string
+}) {
+  if (totalTasks === 0) {
+    return "No tasks yet. Regenerate the plan once the roadmap has real work to track."
+  }
+
+  if (completedPhases === totalPhases && totalPhases > 0) {
+    return `All ${completedPhases} phases are closed. You finished the roadmap end to end.`
+  }
+
+  if (dailyStreak >= 7) {
+    return `${dailyStreak}-day build streak. That kind of consistency is rare — keep the chain intact.`
+  }
+
+  if (dailyStreak >= 3) {
+    return `${dailyStreak} days in a row with progress. Build streaks compound — do not break it today.`
+  }
+
+  if (completedPhases >= 2 && activePhaseName) {
+    return `${completedPhases} phases closed. Keep the momentum into ${activePhaseName}.`
+  }
+
+  if (completedPhases === 1 && activePhaseName) {
+    return `First phase locked. Push into ${activePhaseName} before the context fades.`
+  }
+
+  if (dailyStreak === 2) {
+    return `2 days of progress in a row. One more makes it a real streak.`
+  }
+
+  if (dailyStreak === 1 && activePhaseName) {
+    return `You shipped something today in ${activePhaseName}. Come back tomorrow to start a streak.`
+  }
+
+  if (activePhaseName) {
+    return `No recent activity. Pick one task in ${activePhaseName} and start moving again.`
+  }
+
+  return "No recent activity. Pick any task and create the first day of a streak."
+}
+
 function PhaseAccordion({ index, phaseName, description, tasks, onToggle }: {
   index: number; phaseName: string; description: string; tasks: Task[]; onToggle: (id: string, v: boolean) => void
 }) {
   const [open, setOpen] = useState(index === 0)
   const done = tasks.filter((t) => t.completed).length
   const pct = tasks.length > 0 ? Math.round((done / tasks.length) * 100) : 0
+  const recentDone = recentTaskCount(tasks)
   const colors = PHASE_COLORS[index % PHASE_COLORS.length]
   const phaseVibe = pct === 100
-    ? "You cleared this phase cleanly. That is strong momentum."
-    : pct >= 75
-      ? "Closing stretch. One more focused push and this phase is yours."
-      : pct >= 40
-        ? "Momentum is real now. Keep stacking clean wins."
-        : pct > 0
-          ? "You broke the seal on this phase. Stay in motion."
-          : "Start small here. One finished task changes the feel of the whole roadmap."
+    ? `Phase closed: all ${done} tasks finished.`
+    : recentDone >= 3
+      ? `${recentDone} tasks completed in the last 48 h. Strong momentum here.`
+      : recentDone === 2
+        ? "2 tasks done recently. Keep feeding the pace."
+        : recentDone === 1
+          ? "1 task completed recently. Add another before the session ends."
+          : "No recent activity in this phase. Open it and pick the next task."
 
   return (
     <div className={`border rounded-3xl overflow-hidden transition bg-white/72 backdrop-blur-xl ${pct === 100 ? "border-emerald-200 shadow-xl shadow-emerald-100/60" : `${colors.border} bg-gradient-to-br ${colors.bg}`}`}>
@@ -109,11 +202,45 @@ export default function ProjectDetailPage() {
     enabled: !!id,
   })
 
+  const [aiCoachMessage, setAiCoachMessage] = useState<string | null>(null)
+  const [coachLoading, setCoachLoading] = useState(false)
+
+  function fetchCoachMessage(updated: Project) {
+    const totalT = updated.tasks.length
+    const doneT = updated.tasks.filter((t) => t.completed).length
+    const streak = computeDailyStreak(updated.tasks)
+    const compPhases = updated.roadmap.filter((phase) => {
+      const pts = updated.tasks.filter((t) => t.phase === phase.phase)
+      return pts.length > 0 && pts.every((t) => t.completed)
+    }).length
+    const activePhase = updated.roadmap.find((phase) => {
+      const pts = updated.tasks.filter((t) => t.phase === phase.phase)
+      return pts.some((t) => !t.completed)
+    })
+    setCoachLoading(true)
+    projectsApi
+      .coach(id!, {
+        project_title: updated.title,
+        level: updated.level,
+        domain: updated.domain,
+        done_tasks: doneT,
+        total_tasks: totalT,
+        completed_phases: compPhases,
+        total_phases: updated.roadmap.length,
+        daily_streak: streak,
+        active_phase: activePhase?.phase ?? null,
+      })
+      .then((r) => setAiCoachMessage(r.message || null))
+      .catch(() => setAiCoachMessage(null))
+      .finally(() => setCoachLoading(false))
+  }
+
   const updateMutation = useMutation({
     mutationFn: (tasks: Task[]) => projectsApi.update(id!, { tasks }),
     onSuccess: (updated) => {
       queryClient.setQueryData(["project", id], updated)
       queryClient.invalidateQueries({ queryKey: ["projects"] })
+      fetchCoachMessage(updated)
     },
   })
 
@@ -125,6 +252,7 @@ export default function ProjectDetailPage() {
   const totalTasks = project?.tasks?.length ?? 0
   const doneTasks = project?.tasks?.filter((t) => t.completed).length ?? 0
   const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0
+  const dailyStreak = project ? computeDailyStreak(project.tasks) : 0
   const completedPhases = project?.roadmap.filter((phase) => {
     const phaseTasks = project.tasks.filter((task) => task.phase === phase.phase)
     return phaseTasks.length > 0 && phaseTasks.every((task) => task.completed)
@@ -133,15 +261,13 @@ export default function ProjectDetailPage() {
     const phaseTasks = project.tasks.filter((task) => task.phase === phase.phase)
     return phaseTasks.some((task) => !task.completed)
   })
-  const motivationMessage = progress === 100
-    ? "Full clear. You shipped the entire roadmap. That is not luck, that is range."
-    : progress >= 70
-      ? "You are deep in the build now. This is the part where confidence compounds fast."
-      : completedPhases >= 1
-        ? `You already locked in ${completedPhases} phase${completedPhases > 1 ? "s" : ""}. Keep that streak alive.`
-        : currentPhase
-          ? `Phase focus: ${currentPhase.phase}. Finish the next task and the project starts feeling inevitable.`
-          : "You are set up. Pick one task and start the streak."
+  const motivationMessage = buildMotivationMessage({
+    totalTasks,
+    completedPhases,
+    totalPhases: project?.roadmap.length ?? 0,
+    dailyStreak,
+    activePhaseName: currentPhase?.phase,
+  })
   const [archiView, setArchiView] = useState(false)
 
   if (isLoading) return <div className="min-h-screen bg-[#faf9ff] flex items-center justify-center text-slate-400">Loading</div>
@@ -195,10 +321,31 @@ export default function ProjectDetailPage() {
 
         <div className="mb-6 rounded-3xl bg-gradient-to-r from-violet-100 via-sky-50 to-emerald-50 border border-white/90 px-5 py-4 shadow-xl shadow-violet-100/60">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 h-9 w-9 rounded-2xl bg-gradient-to-br from-violet-500 via-sky-400 to-emerald-400 text-white flex items-center justify-center shadow-lg shadow-violet-200">✦</div>
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-500 mb-1">Real-Time Motivation</p>
-              <p className="text-sm leading-relaxed text-slate-700">{motivationMessage}</p>
+            <div className={`mt-0.5 h-9 w-9 rounded-2xl bg-gradient-to-br from-violet-500 via-sky-400 to-emerald-400 text-white flex items-center justify-center shadow-lg shadow-violet-200 transition-opacity ${coachLoading ? "opacity-60" : ""}`}>✦</div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-500">
+                  {coachLoading ? "AI Coach" : aiCoachMessage ? "AI Coach" : "Real-Time Motivation"}
+                </p>
+                {coachLoading && (
+                  <div className="flex gap-1 items-center">
+                    {[0, 1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className="w-1 h-1 rounded-full bg-violet-400 animate-bounce"
+                        style={{ animationDelay: `${i * 0.15}s` }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+              {coachLoading ? (
+                <div className="h-4 bg-violet-100/60 rounded-full w-3/4 animate-pulse" />
+              ) : (
+                <p className="text-sm leading-relaxed text-slate-700">
+                  {aiCoachMessage || motivationMessage}
+                </p>
+              )}
             </div>
           </div>
         </div>

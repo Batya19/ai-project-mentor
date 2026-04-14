@@ -5,6 +5,8 @@ from app.api.deps import get_current_user
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.project import (
+    CoachRequest,
+    CoachResponse,
     ProjectCreate,
     ProjectGenerateRequest,
     ProjectResponse,
@@ -13,6 +15,7 @@ from app.schemas.project import (
 from app.services.ai_service import (
     format_roadmap,
     format_tasks,
+    generate_coach_message,
     generate_project_idea,
 )
 from app.services.project_service import (
@@ -57,6 +60,8 @@ def generate_project(
         level=payload.level,
         technologies=payload.technologies,
         domain=domain,
+        business_value=payload.business_value,
+        unique_aspects=payload.unique_aspects,
     )
     
     # Format the generated data into project structure
@@ -98,6 +103,30 @@ def update_project(
     current_user: User = Depends(get_current_user),
 ) -> ProjectResponse:
     return service_update_project(db, project_id, current_user.id, payload)
+
+
+@router.post("/{project_id}/coach", response_model=CoachResponse)
+def get_coach_message(
+    project_id: str,
+    payload: CoachRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> CoachResponse:
+    """Generate a short AI coaching message based on project progress stats."""
+    # Verify ownership before calling AI (raises 404 if not found)
+    service_get_project(db, project_id, current_user.id)
+    message = generate_coach_message(
+        project_title=payload.project_title,
+        level=payload.level,
+        domain=payload.domain,
+        done_tasks=payload.done_tasks,
+        total_tasks=payload.total_tasks,
+        completed_phases=payload.completed_phases,
+        total_phases=payload.total_phases,
+        daily_streak=payload.daily_streak,
+        active_phase=payload.active_phase,
+    )
+    return CoachResponse(message=message)
 
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)

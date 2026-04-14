@@ -38,6 +38,7 @@ export interface Task {
   description: string
   estimated_hours: number
   completed: boolean
+  completed_at: string | null
 }
 
 export interface Project {
@@ -65,6 +66,22 @@ export interface GenerateRequest {
   unique_aspects?: string
 }
 
+export interface CoachRequest {
+  project_title: string
+  level: string
+  domain: string
+  done_tasks: number
+  total_tasks: number
+  completed_phases: number
+  total_phases: number
+  daily_streak: number
+  active_phase?: string | null
+}
+
+export interface CoachResponse {
+  message: string
+}
+
 export const projectsApi = {
   list: () => api.get<Project[]>('/projects').then((r) => r.data),
   get: (id: string) => api.get<Project>(`/projects/${id}`).then((r) => r.data),
@@ -72,5 +89,7 @@ export const projectsApi = {
     api.post<Project>('/projects/generate', payload).then((r) => r.data),
   update: (id: string, payload: Partial<Project>) =>
     api.put<Project>(`/projects/${id}`, payload).then((r) => r.data),
+  coach: (id: string, payload: CoachRequest) =>
+    api.post<CoachResponse>(`/projects/${id}/coach`, payload).then((r) => r.data),
   delete: (id: string) => api.delete(`/projects/${id}`).then((r) => r.data),
 }
