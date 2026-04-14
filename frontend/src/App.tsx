@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
+import { useAuthStore } from './store/authStore'
 import WelcomePage from './pages/WelcomePage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -7,12 +8,17 @@ import DashboardPage from './pages/DashboardPage'
 import GeneratePage from './pages/GeneratePage'
 import ProjectDetailPage from './pages/ProjectDetailPage'
 
+function GuestRoute({ children }: { children: React.ReactNode }) {
+  const token = useAuthStore((s) => s.token)
+  return token ? <Navigate to="/dashboard" replace /> : <>{children}</>
+}
+
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<WelcomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+      <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
       <Route
         path="/dashboard"
         element={
