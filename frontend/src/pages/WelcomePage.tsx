@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
+import BrandLogo from "../components/BrandLogo"
 import { useAuthStore } from "../store/authStore"
 
 /*  Terminal typing animation  */
@@ -108,12 +109,7 @@ export default function WelcomePage() {
 
       {/*  Nav  */}
       <nav className="relative z-20 flex items-center justify-between px-8 py-5">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-violet-500 to-sky-400 flex items-center justify-center shadow-lg shadow-violet-500/40">
-            <span className="text-white text-lg font-bold"></span>
-          </div>
-          <span className="font-extrabold text-white text-base tracking-tight">AI Project Mentor</span>
-        </div>
+        <BrandLogo size="md" />
         <div className="flex items-center gap-3">
           {token ? (
             <Link to="/dashboard"

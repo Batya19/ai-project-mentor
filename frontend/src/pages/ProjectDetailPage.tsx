@@ -4,11 +4,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { projectsApi } from "../lib/api"
 import type { Task } from "../lib/api"
 import ArchitectView from "../components/ArchitectView"
+import BrandLogo from "../components/BrandLogo"
 
 const LEVEL_STYLE: Record<string, string> = {
-  junior: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  mid: "bg-amber-100 text-amber-700 border-amber-200",
-  advanced: "bg-rose-100 text-rose-700 border-rose-200",
+  junior: "bg-emerald-400/12 text-emerald-300 border-emerald-400/20",
+  mid: "bg-amber-400/12 text-amber-300 border-amber-400/20",
+  advanced: "bg-rose-400/12 text-rose-300 border-rose-400/20",
 }
 
 function TaskItem({ task, onToggle }: { task: Task; onToggle: (id: string, v: boolean) => void }) {
@@ -16,7 +17,7 @@ function TaskItem({ task, onToggle }: { task: Task; onToggle: (id: string, v: bo
     <li className="flex items-start gap-3 py-3">
       <label className="flex items-start gap-3 cursor-pointer w-full group">
         <div className={`mt-0.5 w-4 h-4 shrink-0 rounded-lg border-2 flex items-center justify-center transition ${
-          task.completed ? "bg-gradient-to-br from-violet-500 to-sky-500 border-violet-400" : "border-slate-200 bg-white group-hover:border-violet-400"
+          task.completed ? "bg-gradient-to-br from-violet-500 via-sky-400 to-emerald-400 border-sky-300 shadow-[0_0_16px_rgba(56,189,248,0.45)]" : "border-white/20 bg-white/[0.03] group-hover:border-sky-400"
         }`}>
           {task.completed && (
             <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 8">
@@ -26,10 +27,10 @@ function TaskItem({ task, onToggle }: { task: Task; onToggle: (id: string, v: bo
           <input type="checkbox" checked={task.completed} onChange={(e) => onToggle(task.id, e.target.checked)} className="sr-only"/>
         </div>
         <div className="flex-1 min-w-0">
-          <p className={`text-sm leading-snug ${task.completed ? "line-through text-slate-300" : "text-slate-700"}`}>{task.name}</p>
-          {task.description && <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">{task.description}</p>}
+          <p className={`text-sm leading-snug ${task.completed ? "line-through text-white/20" : "text-white/85"}`}>{task.name}</p>
+          {task.description && <p className="text-xs text-white/35 mt-0.5 leading-relaxed">{task.description}</p>}
           {task.estimated_hours > 0 && (
-            <span className="inline-block mt-1.5 text-xs bg-violet-100 text-violet-600 border border-violet-200 px-2 py-0.5 rounded-full font-medium">~{task.estimated_hours}h</span>
+            <span className="inline-block mt-1.5 text-xs bg-violet-500/10 text-violet-200 border border-violet-400/20 px-2 py-0.5 rounded-full font-medium">~{task.estimated_hours}h</span>
           )}
         </div>
       </label>
@@ -38,11 +39,11 @@ function TaskItem({ task, onToggle }: { task: Task; onToggle: (id: string, v: bo
 }
 
 const PHASE_COLORS = [
-  { bg: "from-violet-50 to-purple-50", border: "border-violet-200", num: "bg-gradient-to-br from-violet-500 to-purple-500" },
-  { bg: "from-sky-50 to-cyan-50",      border: "border-sky-200",    num: "bg-gradient-to-br from-sky-500 to-cyan-500" },
-  { bg: "from-rose-50 to-pink-50",     border: "border-rose-200",   num: "bg-gradient-to-br from-rose-500 to-pink-500" },
-  { bg: "from-amber-50 to-yellow-50",  border: "border-amber-200",  num: "bg-gradient-to-br from-amber-500 to-yellow-500" },
-  { bg: "from-emerald-50 to-teal-50",  border: "border-emerald-200",num: "bg-gradient-to-br from-emerald-500 to-teal-500" },
+  { bg: "from-violet-500/12 to-transparent", border: "border-violet-400/20", num: "bg-gradient-to-br from-violet-500 to-purple-500" },
+  { bg: "from-sky-500/12 to-transparent", border: "border-sky-400/20", num: "bg-gradient-to-br from-sky-500 to-cyan-500" },
+  { bg: "from-rose-500/12 to-transparent", border: "border-rose-400/20", num: "bg-gradient-to-br from-rose-500 to-pink-500" },
+  { bg: "from-amber-500/12 to-transparent", border: "border-amber-400/20", num: "bg-gradient-to-br from-amber-500 to-yellow-500" },
+  { bg: "from-emerald-500/12 to-transparent", border: "border-emerald-400/20", num: "bg-gradient-to-br from-emerald-500 to-teal-500" },
 ]
 
 function PhaseAccordion({ index, phaseName, description, tasks, onToggle }: {
@@ -54,30 +55,30 @@ function PhaseAccordion({ index, phaseName, description, tasks, onToggle }: {
   const colors = PHASE_COLORS[index % PHASE_COLORS.length]
 
   return (
-    <div className={`border-2 rounded-3xl overflow-hidden transition ${pct === 100 ? "border-emerald-200 bg-emerald-50" : `${colors.border} bg-gradient-to-br ${colors.bg}`}`}>
+    <div className={`border rounded-3xl overflow-hidden transition bg-[#0b0a15]/85 backdrop-blur-xl ${pct === 100 ? "border-emerald-400/25 shadow-[0_0_24px_rgba(52,211,153,0.08)]" : `${colors.border} bg-gradient-to-br ${colors.bg}`}`}>
       <button type="button" onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/40 transition text-left"
+        className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/[0.03] transition text-left"
       >
         <div className="flex items-center gap-3">
           <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white shadow-sm ${pct === 100 ? "bg-gradient-to-br from-emerald-400 to-teal-400" : colors.num}`}>
-            {pct === 100 ? "" : index + 1}
+            {pct === 100 ? "✓" : index + 1}
           </div>
-          <span className="text-slate-800 font-bold text-sm">{phaseName}</span>
+          <span className="text-white font-bold text-sm">{phaseName}</span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-slate-400 hidden sm:block">{done}/{tasks.length}</span>
-          {pct === 100 && <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold border border-emerald-200">Done </span>}
-          <svg className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <span className="text-xs text-white/35 hidden sm:block">{done}/{tasks.length}</span>
+          {pct === 100 && <span className="text-xs bg-emerald-400/12 text-emerald-300 px-2 py-0.5 rounded-full font-semibold border border-emerald-400/20">Done ✓</span>}
+          <svg className={`w-4 h-4 text-white/35 transition-transform ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
           </svg>
         </div>
       </button>
       {open && (
-        <div className="px-5 pb-4 border-t border-white/60">
-          {description && <p className="text-xs text-slate-400 mt-3 mb-1 leading-relaxed">{description}</p>}
+        <div className="px-5 pb-4 border-t border-white/8">
+          {description && <p className="text-xs text-white/35 mt-3 mb-1 leading-relaxed">{description}</p>}
           {tasks.length > 0
-            ? <ul className="divide-y divide-white/60">{tasks.map((t) => <TaskItem key={t.id} task={t} onToggle={onToggle} />)}</ul>
-            : <p className="text-xs text-slate-300 mt-3">No tasks for this phase.</p>}
+            ? <ul className="divide-y divide-white/8">{tasks.map((t) => <TaskItem key={t.id} task={t} onToggle={onToggle} />)}</ul>
+            : <p className="text-xs text-white/20 mt-3">No tasks for this phase.</p>}
         </div>
       )}
     </div>
@@ -113,68 +114,70 @@ export default function ProjectDetailPage() {
   const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0
   const [archiView, setArchiView] = useState(false)
 
-  if (isLoading) return <div className="min-h-screen bg-[#faf9ff] flex items-center justify-center text-slate-400">Loading</div>
-  if (isError || !project) return <div className="min-h-screen bg-[#faf9ff] flex items-center justify-center text-rose-500">Failed to load project.</div>
+  if (isLoading) return <div className="min-h-screen bg-[#060611] flex items-center justify-center text-white/35">Loading</div>
+  if (isError || !project) return <div className="min-h-screen bg-[#060611] flex items-center justify-center text-rose-300">Failed to load project.</div>
 
   return (
-    <div className="min-h-screen bg-[#faf9ff] relative overflow-hidden">
+    <div className="min-h-screen bg-[#060611] relative overflow-hidden text-white">
       <div className="pointer-events-none">
-        <div className="blob w-96 h-96 bg-violet-200 -top-32 -right-32" style={{position:"fixed"}} />
-        <div className="blob w-80 h-80 bg-sky-100 bottom-0 -left-32" style={{position:"fixed"}} />
+        <div className="glow-orb w-[34rem] h-[34rem] bg-violet-500/45 -top-32 -right-32" />
+        <div className="glow-orb w-[28rem] h-[28rem] bg-sky-500/28 bottom-0 -left-32" />
+        <div className="glow-orb w-[16rem] h-[16rem] bg-emerald-500/18 top-1/3 right-1/4" />
       </div>
 
-      <nav className="relative z-20 bg-white/70 backdrop-blur-xl border-b border-white/80 px-6 py-4 flex items-center gap-3 sticky top-0">
-        <Link to="/dashboard" className="text-sm text-slate-500 hover:text-slate-800 font-semibold transition"> Dashboard</Link>
+      <nav className="relative z-20 bg-black/20 backdrop-blur-xl border-b border-white/8 px-6 py-4 flex items-center justify-between gap-3 sticky top-0">
+        <Link to="/dashboard" className="text-sm text-white/45 hover:text-white font-semibold transition">← Dashboard</Link>
+        <BrandLogo size="sm" />
       </nav>
 
       <main className="relative z-10 max-w-3xl mx-auto px-6 py-10">
         <div className="mb-6">
           <div className="flex items-start gap-3 mb-2 flex-wrap">
-            <h1 className="text-2xl font-extrabold text-slate-800 leading-tight">{project.title}</h1>
-            <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize border ${LEVEL_STYLE[project.level] ?? "bg-slate-100 text-slate-600 border-slate-200"}`}>
+            <h1 className="text-3xl font-extrabold text-white leading-tight">{project.title}</h1>
+            <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize border ${LEVEL_STYLE[project.level] ?? "bg-white/10 text-white/60 border-white/10"}`}>
               {project.level}
             </span>
           </div>
-          <p className="text-slate-500 text-sm leading-relaxed">{project.description}</p>
+          <p className="text-white/45 text-sm leading-relaxed">{project.description}</p>
           {project.technologies?.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-3">
               {project.technologies.map((tech) => (
-                <span key={tech} className="text-xs bg-violet-100 text-violet-600 border border-violet-200 px-2.5 py-0.5 rounded-full font-medium">{tech}</span>
+                <span key={tech} className="text-xs bg-violet-400/10 text-violet-200 border border-violet-400/20 px-2.5 py-0.5 rounded-full font-medium">{tech}</span>
               ))}
             </div>
           )}
         </div>
 
         {/* Progress card */}
-        <div className="bg-white/70 backdrop-blur border border-white/80 rounded-3xl p-5 mb-6 shadow-sm">
+        <div className="surface-glow rounded-3xl p-5 mb-6 shadow-2xl shadow-black/15">
           <div className="flex justify-between items-center mb-3">
-            <span className="text-sm font-bold text-slate-700">Overall progress</span>
-            <span className={`text-sm font-extrabold ${progress === 100 ? "text-emerald-500" : "text-violet-600"}`}>{progress}%</span>
+            <span className="text-sm font-bold text-white">Overall progress</span>
+            <span className={`text-sm font-extrabold ${progress === 100 ? "text-emerald-300" : "text-sky-300"}`}>{progress}%</span>
           </div>
-          <div className="w-full bg-slate-100 rounded-full h-2 mb-2">
+          <div className="w-full bg-white/5 rounded-full h-2 mb-2">
             <div
-              className={`h-2 rounded-full transition-all duration-700 ${progress === 100 ? "bg-gradient-to-r from-emerald-400 to-teal-400" : "bg-gradient-to-r from-violet-400 to-sky-400"}`}
+              className={`h-2 rounded-full transition-all duration-700 ${progress === 100 ? "bg-gradient-to-r from-emerald-400 to-teal-400 shadow-[0_0_14px_rgba(52,211,153,0.45)]" : "bg-gradient-to-r from-violet-500 via-sky-400 to-emerald-400 shadow-[0_0_16px_rgba(56,189,248,0.45)]"}`}
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="text-xs text-slate-400">{doneTasks} of {totalTasks} tasks completed</p>
+          <p className="text-xs text-white/35">{doneTasks} of {totalTasks} tasks completed</p>
         </div>
 
         {/* ── View toggle ── */}
-        <div className="flex items-center gap-2 mb-5 bg-white/60 backdrop-blur border border-white/80 rounded-2xl p-1 w-fit shadow-sm">
+        <div className="flex items-center gap-2 mb-5 bg-white/[0.04] backdrop-blur border border-white/10 rounded-2xl p-1 w-fit shadow-sm">
           <button
             onClick={() => setArchiView(false)}
             className={`text-xs font-bold px-4 py-2 rounded-xl transition ${
-              !archiView ? "bg-gradient-to-r from-violet-500 to-sky-500 text-white shadow-md shadow-violet-200" : "text-slate-400 hover:text-slate-600"
+              !archiView ? "bg-gradient-to-r from-violet-600 via-sky-500 to-emerald-500 text-white shadow-md shadow-violet-600/30" : "text-white/40 hover:text-white"
             }`}>
-            📋 Roadmap
+            Roadmap
           </button>
           <button
             onClick={() => setArchiView(true)}
             className={`text-xs font-bold px-4 py-2 rounded-xl transition ${
-              archiView ? "bg-gradient-to-r from-violet-600 to-sky-600 text-white shadow-md shadow-violet-300" : "text-slate-400 hover:text-slate-600"
+              archiView ? "bg-gradient-to-r from-violet-600 via-sky-500 to-emerald-500 text-white shadow-md shadow-violet-600/30" : "text-white/40 hover:text-white"
             }`}>
-            🏗 Architect View
+            Architect View
           </button>
         </div>
 
@@ -182,7 +185,7 @@ export default function ProjectDetailPage() {
           <ArchitectView project={project} />
         ) : (
           <>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Roadmap</p>
+            <p className="text-xs font-bold text-white/35 uppercase tracking-wider mb-3">Roadmap</p>
             <div className="space-y-3">
               {project.roadmap.map((phase, i) => (
                 <PhaseAccordion
@@ -194,11 +197,11 @@ export default function ProjectDetailPage() {
             </div>
 
             {progress === 100 && (
-              <div className="mt-8 text-center py-10 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-3xl">
-                <p className="text-4xl mb-3"></p>
-                <p className="text-emerald-700 font-extrabold text-xl mb-1">Project complete!</p>
-                <p className="text-emerald-600 text-sm mb-6">You built something real. Amazing work!</p>
-                <button onClick={() => navigate("/generate")} className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold px-6 py-2.5 rounded-2xl text-sm shadow-lg shadow-emerald-200 transition">
+              <div className="mt-8 text-center py-10 bg-gradient-to-br from-emerald-500/12 to-sky-500/10 border border-emerald-400/20 rounded-3xl backdrop-blur-xl">
+                <p className="text-4xl mb-3">✦</p>
+                <p className="text-emerald-300 font-extrabold text-xl mb-1">Project complete!</p>
+                <p className="text-white/45 text-sm mb-6">You built something real. Amazing work!</p>
+                <button onClick={() => navigate("/generate")} className="bg-gradient-to-r from-emerald-500 via-sky-500 to-violet-500 hover:from-emerald-400 hover:via-sky-400 hover:to-violet-400 text-white font-bold px-6 py-2.5 rounded-2xl text-sm shadow-lg shadow-emerald-600/25 transition">
                   Generate next project →
                 </button>
               </div>
