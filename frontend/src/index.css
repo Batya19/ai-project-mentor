@@ -8,7 +8,7 @@ html {
   -webkit-font-smoothing: antialiased;
 }
 
-body { margin: 0; background: #060611; color: #f8fafc; }
+body { margin: 0; background: #faf9ff; color: #241b3a; }
 #root { min-height: 100vh; }
 
 /* Blob helper – used in backgrounds */
@@ -38,15 +38,16 @@ body { margin: 0; background: #060611; color: #f8fafc; }
 }
 
 .surface-glow {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(18px);
+  box-shadow: 0 18px 48px -24px rgba(124, 58, 237, 0.28), 0 10px 24px -18px rgba(14, 165, 233, 0.22);
 }
 
 .glow-orb {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(72px);
-  opacity: 0.5;
+  filter: blur(86px);
+  opacity: 0.42;
   pointer-events: none;
 }

@@ -11,7 +11,7 @@ const SIZE_MAP = {
   lg: { icon: "h-12 w-12", title: "text-xl", sub: "text-xs" },
 } as const
 
-export default function BrandLogo({ size = "md", showText = true, theme = "dark", className = "" }: BrandLogoProps) {
+export default function BrandLogo({ size = "md", showText = true, theme = "light", className = "" }: BrandLogoProps) {
   const palette = SIZE_MAP[size]
   const titleColor = theme === "dark" ? "text-white" : "text-slate-900"
   const subColor = theme === "dark" ? "text-white/35" : "text-slate-500"
@@ -46,8 +46,8 @@ export default function BrandLogo({ size = "md", showText = true, theme = "dark"
           </filter>
         </defs>
 
-        <circle cx="32" cy="32" r="25" fill="url(#brand-bg)" opacity="0.22" filter="url(#brand-glow)" />
-        <circle cx="32" cy="32" r="22" fill="#08070f" stroke="rgba(255,255,255,0.14)" strokeWidth="1.5" />
+        <circle cx="32" cy="32" r="25" fill="url(#brand-bg)" opacity="0.28" filter="url(#brand-glow)" />
+        <circle cx="32" cy="32" r="22" fill={theme === "dark" ? "#08070f" : "rgba(255,255,255,0.88)"} stroke={theme === "dark" ? "rgba(255,255,255,0.14)" : "rgba(167,139,250,0.28)"} strokeWidth="1.5" />
 
         <path d="M23 21 L41 21" stroke="url(#brand-link-a)" strokeWidth="2.8" strokeLinecap="round" filter="url(#brand-glow)" />
         <path d="M23 21 L31 43" stroke="url(#brand-link-b)" strokeWidth="2.8" strokeLinecap="round" filter="url(#brand-glow)" />

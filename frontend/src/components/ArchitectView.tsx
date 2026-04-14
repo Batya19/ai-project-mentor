@@ -39,11 +39,11 @@ export default function ArchitectView({ project }: { project: Project }) {
       {/* ── Diagram ── */}
       <div className="relative">
         {/* outer glow aura */}
-        <div className="absolute -inset-3 bg-gradient-to-br from-violet-500/15 via-sky-500/5 to-emerald-500/15 blur-2xl rounded-3xl pointer-events-none" />
+        <div className="absolute -inset-3 bg-gradient-to-br from-violet-300/45 via-sky-300/28 to-emerald-300/38 blur-2xl rounded-3xl pointer-events-none" />
 
-        <div className="relative bg-[#08070f] border border-white/10 rounded-2xl overflow-hidden">
+        <div className="relative bg-white/72 border border-white/80 rounded-2xl overflow-hidden shadow-xl shadow-violet-100/70">
           {/* title bar */}
-          <div className="flex items-center gap-2 px-5 pt-3 pb-2.5 border-b border-white/[0.06] font-mono text-[11px] text-white/25">
+          <div className="flex items-center gap-2 px-5 pt-3 pb-2.5 border-b border-white/70 font-mono text-[11px] text-slate-400">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             architecture · data-flow · {project.title}
           </div>
@@ -92,7 +92,7 @@ export default function ArchitectView({ project }: { project: Project }) {
                   {/* label — painted outline so it's always readable */}
                   <text x={e.lx} y={e.ly} textAnchor="middle" fontSize="10"
                     fontFamily="ui-monospace, monospace" fontWeight="600"
-                    stroke="#08070f" strokeWidth="3.5" paintOrder="stroke"
+                    stroke="#ffffff" strokeWidth="3.5" paintOrder="stroke"
                     fill={e.color} opacity="0.9">
                     {e.label}
                   </text>
@@ -115,7 +115,7 @@ export default function ArchitectView({ project }: { project: Project }) {
                   <rect
                     x={n.cx - n.hw} y={n.cy - n.hh}
                     width={n.hw * 2} height={n.hh * 2}
-                    rx="10" fill="rgba(8,7,15,0.88)"
+                    rx="10" fill="rgba(255,255,255,0.88)"
                     stroke={n.color} strokeWidth="1.6"
                   />
                   {/* label */}
@@ -127,7 +127,7 @@ export default function ArchitectView({ project }: { project: Project }) {
                   {/* sub */}
                   <text x={n.cx} y={n.cy + 13} textAnchor="middle"
                     fontSize="9.5" fontFamily="ui-monospace,monospace"
-                    fill="rgba(255,255,255,0.32)">
+                    fill="rgba(71,85,105,0.72)">
                     {n.sub}
                   </text>
                 </g>
@@ -141,16 +141,16 @@ export default function ArchitectView({ project }: { project: Project }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {steps.map((s, i) => (
           <div key={i}
-            className="bg-[#08070f]/80 border border-white/[0.08] rounded-2xl p-4 backdrop-blur">
+            className="bg-white/72 border border-white/80 rounded-2xl p-4 backdrop-blur shadow-lg shadow-violet-100/60">
             <div className="flex items-center gap-1.5 mb-2.5">
               <span className="w-5 h-5 rounded-lg bg-gradient-to-br from-violet-500/25 to-sky-500/25
-                border border-white/[0.1] text-white/40 text-[10px] flex items-center justify-center font-bold font-mono">
+                border border-white/80 text-slate-500 text-[10px] flex items-center justify-center font-bold font-mono">
                 {s.icon}
               </span>
-              <span className="text-white/20 text-[10px] font-mono uppercase tracking-wider">AI step</span>
+              <span className="text-slate-400 text-[10px] font-mono uppercase tracking-wider">AI step</span>
             </div>
-            <div className="text-white/75 text-sm font-bold leading-snug">{s.title}</div>
-            <div className="text-white/30 text-xs mt-1 font-mono leading-relaxed">{s.sub}</div>
+            <div className="text-slate-900 text-sm font-bold leading-snug">{s.title}</div>
+            <div className="text-slate-500 text-xs mt-1 font-mono leading-relaxed">{s.sub}</div>
           </div>
         ))}
       </div>

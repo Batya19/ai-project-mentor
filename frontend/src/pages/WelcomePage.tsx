@@ -91,39 +91,39 @@ export default function WelcomePage() {
   const token = useAuthStore((s) => s.token)
 
   return (
-    <div className="min-h-screen bg-[#060611] overflow-hidden relative text-white">
+    <div className="min-h-screen bg-[#faf9ff] overflow-hidden relative text-slate-900">
 
       {/*  Glowing radial blobs  */}
       <div className="pointer-events-none select-none" aria-hidden>
         <div style={{position:"fixed",top:"-10%",left:"-10%",width:"700px",height:"700px",
-          background:"radial-gradient(circle,rgba(124,58,237,0.5) 0%,transparent 70%)",zIndex:0}} />
+          background:"radial-gradient(circle,rgba(167,139,250,0.42) 0%,transparent 70%)",zIndex:0}} />
         <div style={{position:"fixed",top:"15%",right:"-12%",width:"600px",height:"600px",
-          background:"radial-gradient(circle,rgba(14,165,233,0.38) 0%,transparent 70%)",zIndex:0}} />
+          background:"radial-gradient(circle,rgba(125,211,252,0.42) 0%,transparent 70%)",zIndex:0}} />
         <div style={{position:"fixed",bottom:"-5%",left:"15%",width:"650px",height:"650px",
-          background:"radial-gradient(circle,rgba(244,63,94,0.28) 0%,transparent 70%)",zIndex:0}} />
+          background:"radial-gradient(circle,rgba(251,182,206,0.4) 0%,transparent 70%)",zIndex:0}} />
         <div style={{position:"fixed",bottom:"8%",right:"8%",width:"450px",height:"450px",
-          background:"radial-gradient(circle,rgba(16,185,129,0.22) 0%,transparent 70%)",zIndex:0}} />
+          background:"radial-gradient(circle,rgba(167,243,208,0.34) 0%,transparent 70%)",zIndex:0}} />
         <div style={{position:"fixed",top:"50%",left:"42%",width:"350px",height:"350px",
-          background:"radial-gradient(circle,rgba(245,158,11,0.18) 0%,transparent 70%)",zIndex:0}} />
+          background:"radial-gradient(circle,rgba(253,230,138,0.32) 0%,transparent 70%)",zIndex:0}} />
       </div>
 
       {/*  Nav  */}
       <nav className="relative z-20 flex items-center justify-between px-8 py-5">
-        <BrandLogo size="md" />
+        <BrandLogo size="md" theme="light" />
         <div className="flex items-center gap-3">
           {token ? (
             <Link to="/dashboard"
               className="bg-gradient-to-r from-violet-600 to-sky-600 hover:from-violet-500 hover:to-sky-500 text-white text-sm font-bold px-5 py-2.5 rounded-2xl shadow-lg shadow-violet-500/30 transition">
-              My dashboard 
+              My dashboard →
             </Link>
           ) : (
             <>
-              <Link to="/login" className="text-sm text-white/50 hover:text-white font-semibold transition px-3 py-2">
+              <Link to="/login" className="text-sm text-slate-500 hover:text-slate-900 font-semibold transition px-3 py-2">
                 Log in
               </Link>
               <Link to="/register"
                 className="bg-gradient-to-r from-violet-600 to-sky-600 hover:from-violet-500 hover:to-sky-500 text-white text-sm font-bold px-5 py-2.5 rounded-2xl shadow-lg shadow-violet-500/30 transition">
-                Get started free 
+                Get started free →
               </Link>
             </>
           )}
@@ -134,9 +134,9 @@ export default function WelcomePage() {
       <section className="relative z-10 max-w-6xl mx-auto px-6 pt-16 pb-24 grid md:grid-cols-2 gap-14 items-center">
         <div>
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white/5 backdrop-blur border border-white/10 text-violet-300 text-xs font-semibold px-4 py-1.5 rounded-full mb-8 shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-white/70 backdrop-blur border border-white/80 text-violet-600 text-xs font-semibold px-4 py-1.5 rounded-full mb-8 shadow-sm shadow-violet-100/80">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Powered by Groq  llama-3.3-70b-versatile
+            Powered by Groq · llama-3.3-70b-versatile
           </div>
 
           <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight leading-[1.07] mb-6">
@@ -147,8 +147,8 @@ export default function WelcomePage() {
             </span>
           </h1>
 
-          <p className="text-white/45 text-lg leading-relaxed mb-10 max-w-md">
-            Stop wondering what to build. Tell the AI your stack and experience level 
+          <p className="text-slate-500 text-lg leading-relaxed mb-10 max-w-md">
+            Stop wondering what to build. Tell the AI your stack and experience level,
             get a complete project with phased roadmap and tasks instantly.
           </p>
 
@@ -156,11 +156,11 @@ export default function WelcomePage() {
             <Link
               to={token ? "/dashboard" : "/register"}
               className="bg-gradient-to-r from-violet-600 to-sky-600 hover:from-violet-500 hover:to-sky-500 text-white font-bold px-8 py-3.5 rounded-2xl text-sm shadow-xl shadow-violet-500/30 transition">
-              {token ? "Open dashboard " : "Start for free "}
+              {token ? "Open dashboard →" : "Start for free →"}
             </Link>
             {!token && (
               <Link to="/login"
-                className="bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white font-semibold px-6 py-3.5 rounded-2xl text-sm transition">
+                className="bg-white/70 hover:bg-white border border-white/80 text-slate-600 hover:text-slate-900 font-semibold px-6 py-3.5 rounded-2xl text-sm transition shadow-sm shadow-violet-100/80">
                 I have an account
               </Link>
             )}
@@ -176,15 +176,15 @@ export default function WelcomePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {FEATURES.map((f) => (
             <div key={f.title}
-              className="group bg-white/[0.04] hover:bg-white/[0.07] border border-white/10 rounded-2xl p-6 flex flex-col gap-4 transition duration-300">
+              className="group bg-white/72 hover:bg-white/86 border border-white/80 rounded-2xl p-6 flex flex-col gap-4 transition duration-300 shadow-xl shadow-violet-100/70">
               {/* colour bar */}
               <div className={`w-10 h-1 rounded-full bg-gradient-to-r ${f.grad}`} />
-              <h3 className="text-white font-bold text-sm">{f.title}</h3>
+              <h3 className="text-slate-900 font-bold text-sm">{f.title}</h3>
               {/* code snippet */}
-              <pre className="text-xs leading-relaxed font-mono bg-black/30 border border-white/[0.07] rounded-xl p-3.5 text-sky-300 whitespace-pre-wrap overflow-x-auto">
+              <pre className="text-xs leading-relaxed font-mono bg-slate-950 text-sky-200 border border-slate-800 rounded-xl p-3.5 whitespace-pre-wrap overflow-x-auto shadow-inner">
                 {f.snippet}
               </pre>
-              <p className="text-white/35 text-sm leading-relaxed">{f.desc}</p>
+              <p className="text-slate-500 text-sm leading-relaxed">{f.desc}</p>
             </div>
           ))}
         </div>
@@ -193,22 +193,22 @@ export default function WelcomePage() {
       {/*  CTA  */}
       <section className="relative z-10 pb-24 px-6">
         <div className="max-w-2xl mx-auto relative">
-          <div className="absolute -inset-2 bg-gradient-to-r from-violet-600 via-sky-500 to-emerald-500 opacity-25 blur-3xl rounded-3xl" />
-          <div className="relative bg-gradient-to-br from-violet-900/50 to-sky-900/50 border border-white/10 backdrop-blur-xl rounded-3xl p-10 text-center">
-            <p className="text-violet-300 text-xs uppercase tracking-widest font-semibold mb-3">Ready to build?</p>
-            <h2 className="text-white text-2xl font-extrabold mb-2">Pick your stack.</h2>
-            <p className="text-white/40 text-base mb-8">Let the AI do the rest.</p>
+          <div className="absolute -inset-2 bg-gradient-to-r from-violet-300 via-sky-300 to-emerald-300 opacity-55 blur-3xl rounded-3xl" />
+          <div className="relative bg-white/72 border border-white/80 backdrop-blur-xl rounded-3xl p-10 text-center shadow-2xl shadow-violet-100/70">
+            <p className="text-violet-500 text-xs uppercase tracking-widest font-semibold mb-3">Ready to build?</p>
+            <h2 className="text-slate-900 text-2xl font-extrabold mb-2">Pick your stack.</h2>
+            <p className="text-slate-500 text-base mb-8">Let the AI do the rest.</p>
             <Link
               to={token ? "/dashboard" : "/register"}
               className="inline-block bg-gradient-to-r from-violet-600 to-sky-600 hover:from-violet-500 hover:to-sky-500 text-white font-bold px-8 py-3 rounded-2xl text-sm shadow-xl shadow-violet-500/30 transition">
-              {token ? "Go to dashboard " : "Create free account "}
+              {token ? "Go to dashboard →" : "Create free account →"}
             </Link>
           </div>
         </div>
       </section>
 
-      <footer className="relative z-10 border-t border-white/[0.06] text-center py-6 text-white/20 text-xs">
-        AI Project Mentor  Built with FastAPI + React + Groq AI
+      <footer className="relative z-10 border-t border-white/70 text-center py-6 text-slate-400 text-xs">
+        AI Project Mentor · Built with FastAPI + React + Groq AI
       </footer>
     </div>
   )

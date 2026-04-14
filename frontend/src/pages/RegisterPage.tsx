@@ -31,49 +31,49 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#060611] flex items-center justify-center px-4 relative overflow-hidden text-white">
-      <div className="glow-orb w-[30rem] h-[30rem] bg-sky-500/45 -top-20 -right-20" />
-      <div className="glow-orb w-[24rem] h-[24rem] bg-violet-500/55 bottom-0 -left-20" />
-      <div className="glow-orb w-[18rem] h-[18rem] bg-amber-400/20 top-1/3 left-1/4" />
-      <div className="glow-orb w-[16rem] h-[16rem] bg-emerald-400/20 bottom-1/4 right-1/4" />
+    <div className="min-h-screen bg-[#faf9ff] flex items-center justify-center px-4 relative overflow-hidden text-slate-900">
+      <div className="glow-orb w-[30rem] h-[30rem] bg-sky-300/65 -top-20 -right-20" />
+      <div className="glow-orb w-[24rem] h-[24rem] bg-violet-300/70 bottom-0 -left-20" />
+      <div className="glow-orb w-[18rem] h-[18rem] bg-amber-200/45 top-1/3 left-1/4" />
+      <div className="glow-orb w-[16rem] h-[16rem] bg-emerald-200/40 bottom-1/4 right-1/4" />
 
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2.5 mb-6 group">
-            <BrandLogo size="md" />
+            <BrandLogo size="md" theme="light" />
           </Link>
-          <h1 className="text-2xl font-extrabold text-white mb-1">Create your account</h1>
-          <p className="text-white/45 text-sm">Start building real projects with AI guidance</p>
+          <h1 className="text-2xl font-extrabold text-slate-900 mb-1">Create your account</h1>
+          <p className="text-slate-500 text-sm">Start building real projects with AI guidance</p>
         </div>
 
         <div className="surface-glow rounded-3xl p-8 shadow-2xl shadow-sky-950/30">
           {error && (
-            <div className="mb-5 text-sm text-rose-200 bg-rose-500/10 border border-rose-400/20 rounded-2xl px-4 py-3">
+            <div className="mb-5 text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded-2xl px-4 py-3">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-white/70 mb-1.5">Email</label>
+              <label className="block text-sm font-semibold text-slate-600 mb-1.5">Email</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-white/[0.04] text-white border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400/60 focus:border-transparent placeholder:text-white/20 transition"
+                className="w-full bg-white/80 text-slate-900 border border-white/80 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400/60 focus:border-transparent placeholder:text-slate-300 transition"
                 placeholder="you@example.com"
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-white/70 mb-1.5">Password</label>
+              <label className="block text-sm font-semibold text-slate-600 mb-1.5">Password</label>
               <input
                 type="password"
                 required
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-white/[0.04] text-white border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400/60 focus:border-transparent placeholder:text-white/20 transition"
+                className="w-full bg-white/80 text-slate-900 border border-white/80 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400/60 focus:border-transparent placeholder:text-slate-300 transition"
                 placeholder="At least 6 characters"
               />
             </div>
@@ -86,9 +86,9 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-white/35">
+          <p className="mt-6 text-center text-sm text-slate-500">
             Already have an account?{" "}
-            <Link to="/login" className="text-sky-300 font-bold hover:text-sky-200 transition">
+            <Link to="/login" className="text-violet-600 font-bold hover:text-violet-700 transition">
               Log in
             </Link>
           </p>
