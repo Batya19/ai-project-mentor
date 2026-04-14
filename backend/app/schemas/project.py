@@ -8,7 +8,9 @@ class ProjectGenerateRequest(BaseModel):
     """Request schema for AI project generation."""
     level: str = Field(description="Project level: junior, mid, or advanced")
     technologies: list[str] = Field(min_length=1, description="Technologies to use")
-    domain: str = Field(description="Project domain: web, ai, devops, or games")
+    domain: str = Field(default="general", description="Project domain: web, ai, devops, games, or general")
+    business_value: str = Field(default="")
+    unique_aspects: str = Field(default="")
 
 
 class ProjectCreate(BaseModel):

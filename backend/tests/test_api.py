@@ -140,3 +140,28 @@ def test_generate_project_uses_ai_payload_shape(client) -> None:
     assert body["domain"] == "ai"
     assert body["roadmap"][0]["phase"] == "Phase 1: Setup & Foundation"
     assert body["tasks"][0]["name"] == "Create database models"
+
+
+def test_generate_project_defaults_optional_fields(client) -> None:
+    token = register_and_login(client, email="generate-defaults@example.com")
+    ai_payload = {
+        "title": "General Mentor Platform",
+        "description": "Generate plans without a selected domain.",
+        "business_value": "AI fallback business value.",
+        "unique_aspects": "AI fallback uniqueness.",
+        "roadmap": [],
+        "tasks": [],
+    }
+
+    with patch("app.api.routes.projects.generate_project_idea", return_value=ai_payload):
+        response = client.post(
+            "/api/projects/generate",
+            json={"level": "mid", "technologies": ["FastAPI", "React"]},
+            headers=auth_headers(token),
+        )
+
+    assert response.status_code == 201
+    body = response.json()
+    assert body["domain"] == "general"
+    assert body["business_value"] == ai_payload["business_value"]
+    assert body["unique_aspects"] == ai_payload["unique_aspects"]

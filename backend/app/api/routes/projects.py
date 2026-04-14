@@ -50,11 +50,13 @@ def generate_project(
     current_user: User = Depends(get_current_user),
 ) -> ProjectResponse:
     """Generate a project idea using AI and create it automatically."""
+    domain = payload.domain or "general"
+
     # Call AI service to generate project data
     ai_result = generate_project_idea(
         level=payload.level,
         technologies=payload.technologies,
-        domain=payload.domain,
+        domain=domain,
     )
     
     # Format the generated data into project structure
@@ -66,9 +68,9 @@ def generate_project(
         title=ai_result.get("title", "Untitled Project"),
         description=ai_result.get("description", ""),
         level=payload.level,
-        domain=payload.domain,
-        business_value=ai_result.get("business_value", ""),
-        unique_aspects=ai_result.get("unique_aspects", ""),
+        domain=domain,
+        business_value=payload.business_value or ai_result.get("business_value", ""),
+        unique_aspects=payload.unique_aspects or ai_result.get("unique_aspects", ""),
         technologies=payload.technologies,
         roadmap=formatted_roadmap,
         tasks=formatted_tasks,

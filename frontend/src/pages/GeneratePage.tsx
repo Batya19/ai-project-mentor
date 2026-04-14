@@ -1,6 +1,7 @@
 ﻿import { useState } from "react"
 import type { FormEvent, KeyboardEvent } from "react"
 import { useNavigate, Link } from "react-router-dom"
+import axios from "axios"
 import BrandLogo from "../components/BrandLogo"
 import { projectsApi } from "../lib/api"
 
@@ -40,9 +41,28 @@ export default function GeneratePage() {
     if (!technologies.length) { setError("Add at least one technology."); return }
     setError(""); setLoading(true)
     try {
-      const project = await projectsApi.generate({ level, technologies, domain: domain || undefined })
+      const project = await projectsApi.generate({
+        level,
+        technologies,
+        domain: domain || "general",
+        business_value: businessValue.trim() || undefined,
+        unique_aspects: uniqueAspects.trim() || undefined,
+      })
       navigate(`/projects/${project.id}`)
-    } catch { setError("Failed to generate. Please try again.") }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const detail = err.response?.data?.detail
+        if (typeof detail === "string") {
+          setError(detail)
+        } else if (Array.isArray(detail) && detail.length > 0) {
+          setError(detail.map((item) => item.msg).join(". "))
+        } else {
+          setError("Failed to generate. Please try again.")
+        }
+      } else {
+        setError("Failed to generate. Please try again.")
+      }
+    }
     finally { setLoading(false) }
   }
 
