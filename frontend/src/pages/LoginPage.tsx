@@ -28,64 +28,66 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center px-4 relative overflow-hidden">
-      <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-teal-500/8 blur-[100px]" />
-      <div className="pointer-events-none absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-violet-500/8 blur-[100px]" />
+    <div className="min-h-screen bg-[#faf9ff] flex items-center justify-center px-4 relative overflow-hidden">
+      {/* blobs */}
+      <div className="blob w-96 h-96 bg-violet-300 -top-20 -left-20" style={{position:"fixed"}} />
+      <div className="blob w-80 h-80 bg-sky-200 bottom-0 -right-20" style={{position:"fixed"}} />
+      <div className="blob w-64 h-64 bg-rose-200 top-1/2 right-1/4" style={{position:"fixed", borderRadius:"40% 60% 70% 30% / 60% 30% 70% 40%"}} />
 
-      <div className="relative w-full max-w-md">
+      <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6 group">
-            <div className="w-8 h-8 rounded-xl bg-teal-400/15 border border-teal-400/30 flex items-center justify-center group-hover:bg-teal-400/20 transition">
-              <span className="text-teal-300 text-base"></span>
+          <Link to="/" className="inline-flex items-center gap-2.5 mb-6 group">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-500 to-sky-400 flex items-center justify-center shadow-lg shadow-violet-200 group-hover:shadow-violet-300 transition">
+              <span className="text-white font-bold"></span>
             </div>
-            <span className="font-bold text-zinc-300 group-hover:text-zinc-100 transition">AI Project Mentor</span>
+            <span className="font-extrabold text-slate-800 tracking-tight group-hover:text-violet-600 transition">AI Project Mentor</span>
           </Link>
-          <h1 className="text-2xl font-bold text-zinc-100">Welcome back</h1>
-          <p className="text-zinc-500 mt-1 text-sm">Log in to continue building</p>
+          <h1 className="text-2xl font-extrabold text-slate-800 mb-1">Welcome back </h1>
+          <p className="text-slate-400 text-sm">Log in to continue building</p>
         </div>
 
-        <div className="bg-zinc-900 border border-white/8 rounded-3xl p-8 shadow-xl">
+        <div className="bg-white/80 backdrop-blur-xl border border-white/90 rounded-3xl p-8 shadow-xl shadow-violet-100">
           {error && (
-            <div className="mb-5 text-sm text-rose-300 bg-rose-400/10 border border-rose-400/20 rounded-xl px-4 py-3">
+            <div className="mb-5 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-2xl px-4 py-3">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-zinc-400 mb-1.5">Email</label>
+              <label className="block text-sm font-semibold text-slate-600 mb-1.5">Email</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-zinc-800 text-zinc-100 border border-white/8 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-400/30 placeholder-zinc-600 transition"
+                className="w-full bg-slate-50 text-slate-800 border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/60 focus:border-transparent placeholder-slate-300 transition"
                 placeholder="you@example.com"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-400 mb-1.5">Password</label>
+              <label className="block text-sm font-semibold text-slate-600 mb-1.5">Password</label>
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-zinc-800 text-zinc-100 border border-white/8 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-400/30 placeholder-zinc-600 transition"
+                className="w-full bg-slate-50 text-slate-800 border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/60 focus:border-transparent placeholder-slate-300 transition"
                 placeholder=""
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-teal-400 hover:bg-teal-300 disabled:opacity-40 text-zinc-900 font-bold rounded-xl px-4 py-2.5 text-sm transition shadow-lg shadow-teal-400/15 mt-2"
+              className="w-full bg-gradient-to-r from-violet-500 to-sky-500 hover:from-violet-600 hover:to-sky-600 disabled:opacity-50 text-white font-bold rounded-2xl px-4 py-3 text-sm transition shadow-lg shadow-violet-200 mt-1"
             >
-              {loading ? "Logging in" : "Log in"}
+              {loading ? "Logging in" : "Log in "}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-zinc-600">
+          <p className="mt-6 text-center text-sm text-slate-400">
             No account?{" "}
-            <Link to="/register" className="text-teal-400 hover:text-teal-300 font-medium transition">
+            <Link to="/register" className="text-violet-600 font-bold hover:text-violet-700 transition">
               Sign up free
             </Link>
           </p>
