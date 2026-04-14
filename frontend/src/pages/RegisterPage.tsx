@@ -1,88 +1,94 @@
-import { useState } from 'react'
-import type { FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { authApi } from '../lib/api'
-import { useAuthStore } from '../store/authStore'
+﻿import { useState } from "react"
+import type { FormEvent } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { authApi } from "../lib/api"
+import { useAuthStore } from "../store/authStore"
 
 export default function RegisterPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const setAuth = useAuthStore((s) => s.setAuth)
   const navigate = useNavigate()
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    setError('')
+    setError("")
     setLoading(true)
     try {
       await authApi.register(email, password)
       const data = await authApi.login(email, password)
       setAuth(data.access_token, email)
-      navigate('/dashboard')
+      navigate("/dashboard")
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
-      setError(msg ?? 'Registration failed. Please try again.')
+      setError(msg ?? "Registration failed. Please try again.")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-white to-sky-50 px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center px-4 relative overflow-hidden">
+      <div className="pointer-events-none absolute -top-32 -right-32 w-96 h-96 rounded-full bg-violet-500/8 blur-[100px]" />
+      <div className="pointer-events-none absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-teal-500/8 blur-[100px]" />
+
+      <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-violet-100 rounded-2xl mb-4">
-            <span className="text-2xl">✦</span>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-800">Create an account</h1>
-          <p className="text-slate-500 mt-1 text-sm">Start building AI-powered projects today</p>
+          <Link to="/" className="inline-flex items-center gap-2 mb-6 group">
+            <div className="w-8 h-8 rounded-xl bg-teal-400/15 border border-teal-400/30 flex items-center justify-center group-hover:bg-teal-400/20 transition">
+              <span className="text-teal-300 text-base"></span>
+            </div>
+            <span className="font-bold text-zinc-300 group-hover:text-zinc-100 transition">AI Project Mentor</span>
+          </Link>
+          <h1 className="text-2xl font-bold text-zinc-100">Create an account</h1>
+          <p className="text-zinc-500 mt-1 text-sm">Start building real projects with AI guidance</p>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
+        <div className="bg-zinc-900 border border-white/8 rounded-3xl p-8 shadow-xl">
           {error && (
-            <div className="mb-5 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3">
+            <div className="mb-5 text-sm text-rose-300 bg-rose-400/10 border border-rose-400/20 rounded-xl px-4 py-3">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+              <label className="block text-sm font-medium text-zinc-400 mb-1.5">Email</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-50 text-slate-800 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent placeholder-slate-400 transition"
+                className="w-full bg-zinc-800 text-zinc-100 border border-white/8 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-400/30 placeholder-zinc-600 transition"
                 placeholder="you@example.com"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+              <label className="block text-sm font-medium text-zinc-400 mb-1.5">Password</label>
               <input
                 type="password"
                 required
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-50 text-slate-800 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent placeholder-slate-400 transition"
+                className="w-full bg-zinc-800 text-zinc-100 border border-white/8 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-400/30 placeholder-zinc-600 transition"
                 placeholder="At least 6 characters"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-violet-500 hover:bg-violet-600 disabled:opacity-50 text-white font-semibold rounded-xl px-4 py-2.5 text-sm transition shadow-sm"
+              className="w-full bg-teal-400 hover:bg-teal-300 disabled:opacity-40 text-zinc-900 font-bold rounded-xl px-4 py-2.5 text-sm transition shadow-lg shadow-teal-400/15 mt-2"
             >
-              {loading ? 'Creating account…' : 'Sign up'}
+              {loading ? "Creating account" : "Sign up free"}
             </button>
           </form>
 
-          <p className="mt-5 text-center text-sm text-slate-500">
-            Already have an account?{' '}
-            <Link to="/login" className="text-violet-600 font-medium hover:underline">
+          <p className="mt-6 text-center text-sm text-zinc-600">
+            Have an account?{" "}
+            <Link to="/login" className="text-teal-400 hover:text-teal-300 font-medium transition">
               Log in
             </Link>
           </p>
