@@ -53,6 +53,15 @@ function PhaseAccordion({ index, phaseName, description, tasks, onToggle }: {
   const done = tasks.filter((t) => t.completed).length
   const pct = tasks.length > 0 ? Math.round((done / tasks.length) * 100) : 0
   const colors = PHASE_COLORS[index % PHASE_COLORS.length]
+  const phaseVibe = pct === 100
+    ? "You cleared this phase cleanly. That is strong momentum."
+    : pct >= 75
+      ? "Closing stretch. One more focused push and this phase is yours."
+      : pct >= 40
+        ? "Momentum is real now. Keep stacking clean wins."
+        : pct > 0
+          ? "You broke the seal on this phase. Stay in motion."
+          : "Start small here. One finished task changes the feel of the whole roadmap."
 
   return (
     <div className={`border rounded-3xl overflow-hidden transition bg-white/72 backdrop-blur-xl ${pct === 100 ? "border-emerald-200 shadow-xl shadow-emerald-100/60" : `${colors.border} bg-gradient-to-br ${colors.bg}`}`}>
@@ -76,6 +85,10 @@ function PhaseAccordion({ index, phaseName, description, tasks, onToggle }: {
       {open && (
         <div className="px-5 pb-4 border-t border-white/60">
           {description && <p className="text-xs text-slate-400 mt-3 mb-1 leading-relaxed">{description}</p>}
+          <div className="mt-3 mb-2 rounded-2xl bg-gradient-to-r from-violet-50 via-sky-50 to-emerald-50 border border-white/90 px-3.5 py-2.5 shadow-sm shadow-violet-100/60">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-violet-500 mb-1">Motivation</p>
+            <p className="text-sm text-slate-600 leading-relaxed">{phaseVibe}</p>
+          </div>
           {tasks.length > 0
             ? <ul className="divide-y divide-white/60">{tasks.map((t) => <TaskItem key={t.id} task={t} onToggle={onToggle} />)}</ul>
             : <p className="text-xs text-slate-300 mt-3">No tasks for this phase.</p>}
@@ -112,6 +125,23 @@ export default function ProjectDetailPage() {
   const totalTasks = project?.tasks?.length ?? 0
   const doneTasks = project?.tasks?.filter((t) => t.completed).length ?? 0
   const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0
+  const completedPhases = project?.roadmap.filter((phase) => {
+    const phaseTasks = project.tasks.filter((task) => task.phase === phase.phase)
+    return phaseTasks.length > 0 && phaseTasks.every((task) => task.completed)
+  }).length ?? 0
+  const currentPhase = project?.roadmap.find((phase) => {
+    const phaseTasks = project.tasks.filter((task) => task.phase === phase.phase)
+    return phaseTasks.some((task) => !task.completed)
+  })
+  const motivationMessage = progress === 100
+    ? "Full clear. You shipped the entire roadmap. That is not luck, that is range."
+    : progress >= 70
+      ? "You are deep in the build now. This is the part where confidence compounds fast."
+      : completedPhases >= 1
+        ? `You already locked in ${completedPhases} phase${completedPhases > 1 ? "s" : ""}. Keep that streak alive.`
+        : currentPhase
+          ? `Phase focus: ${currentPhase.phase}. Finish the next task and the project starts feeling inevitable.`
+          : "You are set up. Pick one task and start the streak."
   const [archiView, setArchiView] = useState(false)
 
   if (isLoading) return <div className="min-h-screen bg-[#faf9ff] flex items-center justify-center text-slate-400">Loading</div>
@@ -161,6 +191,16 @@ export default function ProjectDetailPage() {
             />
           </div>
           <p className="text-xs text-slate-400">{doneTasks} of {totalTasks} tasks completed</p>
+        </div>
+
+        <div className="mb-6 rounded-3xl bg-gradient-to-r from-violet-100 via-sky-50 to-emerald-50 border border-white/90 px-5 py-4 shadow-xl shadow-violet-100/60">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 h-9 w-9 rounded-2xl bg-gradient-to-br from-violet-500 via-sky-400 to-emerald-400 text-white flex items-center justify-center shadow-lg shadow-violet-200">✦</div>
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-500 mb-1">Real-Time Motivation</p>
+              <p className="text-sm leading-relaxed text-slate-700">{motivationMessage}</p>
+            </div>
+          </div>
         </div>
 
         {/* ── View toggle ── */}
