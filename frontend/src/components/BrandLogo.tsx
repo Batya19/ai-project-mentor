@@ -24,16 +24,13 @@ export default function BrandLogo({ size = "md", theme = "light", className = ""
               <stop offset="0%" stopColor="#7c3aed" />
               <stop offset="100%" stopColor="#0ea5e9" />
             </linearGradient>
-            <linearGradient id="arrow-grad" x1="0" y1="0" x2="18" y2="0" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#bae6fd" stopOpacity="0.95" />
-            </linearGradient>
           </defs>
           {/* Rounded square bg */}
           <rect width="28" height="28" rx="8" fill="url(#bg-grad)" />
-          {/* Flow arrow / path symbol */}
-          <path d="M7 14h6M13 14l-3-3M13 14l-3 3" stroke="url(#arrow-grad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M15 10h3a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
+          {/* Flowing S-curves */}
+          <path d="M7 9c3 0 4.5 2.5 7 2.5S18 9 21 9" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.55" />
+          <path d="M7 14c3 0 4.5 2.5 7 2.5S18 14 21 14" stroke="white" strokeWidth="2.2" strokeLinecap="round" opacity="0.9" />
+          <path d="M7 19c3 0 4.5 2.5 7 2.5S18 19 21 19" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.55" />
         </svg>
       </div>
       {/* Wordmark */}

@@ -23,7 +23,8 @@ export default function RegisterPage() {
       setAuth(data.access_token, email)
       navigate("/dashboard")
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+      const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
+      const msg = typeof detail === "string" ? detail : Array.isArray(detail) ? detail.map((d: { msg?: string }) => d.msg).join("; ") : null
       setError(msg ?? "Registration failed. Please try again.")
     } finally {
       setLoading(false)
