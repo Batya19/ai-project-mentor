@@ -187,7 +187,7 @@ function ProjectCard({ project, index, featured = false }: { project: Project; i
     <div ref={rowRef} className="group relative">
       {/* Glassmorphism card */}
       <div
-        className={`relative rounded-2xl bg-white/60 backdrop-blur-md border border-white/70 shadow-sm hover:shadow-md hover:shadow-violet-500/5 transition-all duration-300 overflow-hidden h-full ${
+        className={`relative rounded-2xl bg-white/60 backdrop-blur-md border border-white/70 shadow-sm hover:shadow-lg hover:shadow-violet-500/10 hover:-translate-y-1 hover:scale-[1.01] transition-all duration-300 ease-out overflow-hidden h-full ${
           featured ? "ring-1 ring-violet-200/50" : ""
         }`}
       >
