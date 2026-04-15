@@ -147,10 +147,10 @@ const NODE_OFFSETS: Array<{ side: "left" | "right"; pad: string }> = [
   { side: "left",  pad: "pr-4 sm:pr-8 lg:pr-14" },
 ]
 
-function PhaseAccordion({ index, phaseName, description, tasks, onToggle, state, side }: {
+function PhaseAccordion({ index, phaseName, description, tasks, onToggle, state, side, skills }: {
   index: number; phaseName: string; description: string; tasks: Task[];
   onToggle: (id: string, v: boolean) => void; state: "done" | "active" | "locked";
-  side: "left" | "right"
+  side: "left" | "right"; skills: string[]
 }) {
   const [open, setOpen] = useState(state === "active")
   const done = tasks.filter((t) => t.completed).length
@@ -205,7 +205,15 @@ function PhaseAccordion({ index, phaseName, description, tasks, onToggle, state,
         </button>
         {open && (
           <div className="px-5 pb-4 border-t border-white/60">
-            {description && <p className="text-xs text-slate-400 mt-3 mb-1 leading-relaxed">{description}</p>}
+            {description && <p className="text-xs text-slate-400 mt-3 mb-1 leading-relaxed line-clamp-2">{description}</p>}
+            {skills.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2 mb-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-sky-600 mr-1">Skills:</span>
+                {skills.map((s) => (
+                  <span key={s} className="text-[11px] bg-sky-50 text-sky-700 border border-sky-200 px-2 py-0.5 rounded-full font-medium">{s}</span>
+                ))}
+              </div>
+            )}
             {tasks.length > 0
               ? <ul className="divide-y divide-white/60">{tasks.map((t) => <TaskItem key={t.id} task={t} onToggle={onToggle} />)}</ul>
               : <p className="text-xs text-slate-300 mt-3">No tasks for this phase.</p>}
@@ -230,6 +238,7 @@ export default function ProjectDetailPage() {
   const [aiCoachMessage, setAiCoachMessage] = useState<string | null>(null)
   const [coachLoading, setCoachLoading] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [showMenu, setShowMenu] = useState(false)
 
   const deleteMutation = useMutation({
     mutationFn: () => projectsApi.delete(id!),
@@ -317,7 +326,39 @@ export default function ProjectDetailPage() {
 
       <nav className="relative z-20 bg-white/70 backdrop-blur-xl border-b border-white/80 px-6 py-4 flex items-center justify-between gap-3 sticky top-0">
         <Link to="/dashboard" className="text-sm text-slate-500 hover:text-slate-900 font-semibold transition">← Dashboard</Link>
-        <BrandLogo size="sm" theme="light" />
+        <div className="flex items-center gap-3">
+          <BrandLogo size="sm" theme="light" />
+          {/* ── Actions menu ── */}
+          <div className="relative">
+            <button onClick={() => setShowMenu((v) => !v)} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-slate-100 transition text-slate-400 hover:text-slate-700">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="4" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="10" cy="16" r="1.5"/></svg>
+            </button>
+            {showMenu && (
+              <>
+                <div className="fixed inset-0 z-30" onClick={() => setShowMenu(false)} />
+                <div className="absolute right-0 top-10 z-40 bg-white/90 backdrop-blur-xl border border-white/80 rounded-2xl shadow-xl shadow-slate-200/50 py-1 w-48">
+                  {!confirmDelete ? (
+                    <button onClick={() => setConfirmDelete(true)} className="w-full text-left px-4 py-2.5 text-sm text-rose-500 hover:bg-rose-50 transition font-medium">
+                      Delete project
+                    </button>
+                  ) : (
+                    <div className="px-4 py-3">
+                      <p className="text-xs text-rose-500 font-semibold mb-2">Delete permanently?</p>
+                      <div className="flex gap-2">
+                        <button onClick={() => deleteMutation.mutate()} disabled={deleteMutation.isPending}
+                          className="text-xs font-bold text-white bg-rose-500 hover:bg-rose-600 disabled:opacity-50 px-3 py-1.5 rounded-lg transition">
+                          {deleteMutation.isPending ? "Deleting…" : "Yes"}
+                        </button>
+                        <button onClick={() => { setConfirmDelete(false); setShowMenu(false) }}
+                          className="text-xs font-semibold text-slate-400 hover:text-slate-600 transition">Cancel</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </nav>
 
       <main className="relative z-10 max-w-3xl mx-auto px-6 py-10">
@@ -347,6 +388,32 @@ export default function ProjectDetailPage() {
             </div>
           )}
         </div>
+
+        {/* ── Tech Challenge ── */}
+        {project.tech_challenge && (
+          <div className="mb-6 rounded-2xl bg-gradient-to-br from-indigo-50/80 to-sky-50/80 border border-indigo-100/60 px-5 py-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-500 mb-1.5">⚡ The Tech Challenge</p>
+            <p className="text-sm text-slate-700 leading-relaxed">{project.tech_challenge}</p>
+          </div>
+        )}
+
+        {/* ── Design Decisions (ADR) ── */}
+        {project.design_decisions?.length > 0 && (
+          <div className="mb-6 rounded-2xl bg-white/50 backdrop-blur-sm border border-white/70 px-5 py-4 shadow-sm">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-600 mb-3">🏛 Design Decisions</p>
+            <div className="space-y-3">
+              {project.design_decisions.map((d, i) => (
+                <div key={i} className="flex gap-3">
+                  <div className="w-6 h-6 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">{i + 1}</div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-800">{d.title}</p>
+                    <p className="text-xs text-slate-500 leading-relaxed mt-0.5">{d.rationale}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Progress card with circular indicator */}
         <div className="rounded-3xl bg-white/60 backdrop-blur-md border border-white/70 p-5 mb-6 shadow-lg shadow-violet-100/20">
@@ -433,6 +500,7 @@ export default function ProjectDetailPage() {
                         onToggle={handleToggle}
                         state={state}
                         side={layout.side}
+                        skills={phase.skills ?? []}
                       />
                     </div>
                     {/* ── Curved abstract connector ── */}
@@ -476,34 +544,6 @@ export default function ProjectDetailPage() {
             )}
           </>
         )}
-        {/* ── Danger zone ── */}
-        <div className="mt-16 pt-8 border-t border-slate-100">
-          {!confirmDelete ? (
-            <button
-              onClick={() => setConfirmDelete(true)}
-              className="text-xs text-slate-400 hover:text-rose-500 font-medium transition"
-            >
-              Delete this project
-            </button>
-          ) : (
-            <div className="flex items-center gap-4">
-              <p className="text-sm text-rose-500 font-semibold">Delete "{project.title}" permanently?</p>
-              <button
-                onClick={() => deleteMutation.mutate()}
-                disabled={deleteMutation.isPending}
-                className="text-xs font-bold text-white bg-rose-500 hover:bg-rose-600 disabled:opacity-50 px-4 py-2 rounded-xl transition"
-              >
-                {deleteMutation.isPending ? "Deleting…" : "Yes, delete"}
-              </button>
-              <button
-                onClick={() => setConfirmDelete(false)}
-                className="text-xs font-semibold text-slate-400 hover:text-slate-600 transition"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-        </div>
       </main>
     </div>
   )

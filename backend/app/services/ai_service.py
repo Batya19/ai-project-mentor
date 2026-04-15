@@ -107,6 +107,14 @@ Quality bar:
 - Estimated hours must be realistic for a {level} engineer.
 - Repetition is failure. Vary the project shape, terminology, and roadmap structure.
 
+Task depth rules (critical):
+- Do NOT produce shallow tasks like "Create a new repository", "Set up development environment", or "Install dependencies".
+- Every task must be a low-level engineering implementation step that a {level} developer can open their IDE and start coding.
+- Each task description must specify the concrete file, module, pattern, or library involved.
+- Example of BAD task: "Set up the project" — too vague.
+- Example of GOOD task: "Dockerize the Node.js API with a multi-stage Dockerfile, health-check endpoint, and .dockerignore" — specific and actionable.
+- For {level} level, calibrate complexity accordingly.
+
 Output rules:
 - Return ONLY valid JSON.
 - Do not wrap JSON in markdown.
@@ -115,11 +123,13 @@ Output rules:
 - Description must be 2-3 sentences and include the core user, primary workflow, and why the idea matters.
 - business_value must name a measurable or operational benefit.
 - unique_aspects must mention 2-3 concrete differentiators.
+- tech_challenge must be 2-3 sentences explaining why this project is technically interesting for a developer (e.g. "Requires handling eventual consistency across distributed services" or "Involves complex client-side state reconciliation with optimistic updates"). Focus on the engineering problems, not the business value.
+- design_decisions must be an array of 3-5 architectural decision records. Each one explains WHY a specific technology, pattern, or approach was chosen over alternatives. Format: a short title and a 1-2 sentence rationale.
 - Create 4-6 roadmap phases.
-- Create 10-14 tasks total.
-- Each roadmap phase must have 3-4 goals and 2-3 deliverables.
+- Create 14-20 tasks total (more granular than before).
+- Each roadmap phase must have 3-4 goals, 2-3 deliverables, and a "skills" array listing 2-4 specific technical skills the developer will master in that phase.
 - Each task name must start with a strong verb and avoid repeating the same verb too often.
-- At least 70% of tasks must mention a domain entity, workflow, integration, validation rule, analytics surface, automation, or deployment concern.
+- At least 80% of tasks must mention a domain entity, workflow, integration, validation rule, analytics surface, automation, or deployment concern.
 
 Return this exact JSON structure:
 {{
@@ -127,19 +137,27 @@ Return this exact JSON structure:
     "description": "2-3 sentence description of the project",
     "business_value": "Why this project has real-world value",
     "unique_aspects": "What makes this project stand out in a portfolio",
+    "tech_challenge": "2-3 sentences on why this is technically interesting for a developer",
+    "design_decisions": [
+        {{
+            "title": "Short decision title (e.g. 'RabbitMQ over Kafka')",
+            "rationale": "1-2 sentences explaining why this choice was made for this specific project"
+        }}
+    ],
     "roadmap": [
         {{
             "phase": "Phase 1: Setup & Foundation",
             "description": "What this phase achieves",
             "goals": ["Specific goal 1", "Specific goal 2", "Specific goal 3"],
-            "deliverables": ["Deliverable 1", "Deliverable 2"]
+            "deliverables": ["Deliverable 1", "Deliverable 2"],
+            "skills": ["Skill 1", "Skill 2", "Skill 3"]
         }}
     ],
     "tasks": [
         {{
             "phase": "Phase 1: Setup & Foundation",
-            "name": "Specific task name",
-            "description": "What exactly needs to be done",
+            "name": "Specific low-level engineering task",
+            "description": "Exact implementation step with file/module/pattern/library references",
             "estimated_hours": 3,
             "completed": false
         }}
@@ -390,6 +408,8 @@ def _generate_coach_with_groq(
     lines += [
         "",
         "Write a coaching message for this developer right now.",
+        "If they are actively working on a phase, give a context-aware technical tip specific to that phase's domain (e.g. logging advice during a microservices phase, state management tips during a frontend phase, indexing advice during a database phase).",
+        "Make it feel like a real senior engineer leaning over and saying something useful — not a progress report.",
     ]
 
     user_message = "\n".join(lines)
@@ -397,14 +417,16 @@ def _generate_coach_with_groq(
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         temperature=0.65,
-        max_tokens=90,
+        max_tokens=120,
         messages=[
             {
                 "role": "system",
                 "content": (
-                    "You are a direct, experienced technical mentor. "
-                    "Your job is to give one coaching message (2 sentences maximum) "
+                    "You are a direct, experienced technical mentor (senior architect level). "
+                    "Your job is to give one coaching message (2-3 sentences maximum) "
                     "that is specific to the developer's real project progress. "
+                    "Include a concrete technical tip relevant to the active phase when possible "
+                    "(e.g. 'In microservices, invest in structured logging with correlation IDs now — debugging distributed failures without them is brutal'). "
                     "Reference the project by name or domain when it adds value. "
                     "Be honest and tactical, not generic or cheerful. "
                     "No greetings, no sign-offs, no bullet points — just the message."
@@ -426,6 +448,7 @@ def format_roadmap(roadmap_data: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "description": phase.get("description", ""),
             "goals": phase.get("goals", []),
             "deliverables": phase.get("deliverables", []),
+            "skills": phase.get("skills", []),
         })
     return formatted
 
