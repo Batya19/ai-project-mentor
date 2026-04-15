@@ -103,6 +103,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   const phaseInfo = getActivePhaseInfo(project)
   const health = getHealth(project)
   const lastActive = getLastActive(project)
+  const status = getProjectStatus(project)
 
   const rowRef = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
@@ -189,14 +190,30 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           </div>
         </div>
 
-        {/* View link */}
-        <Link
-          to={`/projects/${project.id}`}
-          className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-violet-500 hover:text-violet-700 transition-all duration-200 group-hover:translate-x-1 group-hover:tracking-wide"
-        >
-          View roadmap
-          <span className="transition-transform group-hover:translate-x-0.5">→</span>
-        </Link>
+        {/* Actions */}
+        <div className="flex items-center gap-4 mt-3">
+          {status !== "completed" ? (
+            <Link
+              to={`/projects/${project.id}`}
+              className={`inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl shadow-sm transition-all duration-200 ${
+                status === "in-progress"
+                  ? "bg-gradient-to-r from-violet-600 to-sky-500 text-white shadow-violet-600/20 hover:shadow-violet-600/40 hover:from-violet-500 hover:to-sky-400"
+                  : "bg-gradient-to-r from-slate-700 to-slate-600 text-white shadow-slate-600/20 hover:shadow-slate-600/40 hover:from-slate-600 hover:to-slate-500"
+              }`}
+            >
+              {status === "in-progress" ? "Continue Coding" : "Start First Phase"}
+              <span>→</span>
+            </Link>
+          ) : (
+            <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">✓ Completed</span>
+          )}
+          <Link
+            to={`/projects/${project.id}`}
+            className="text-xs font-semibold text-slate-400 hover:text-violet-500 transition"
+          >
+            View roadmap
+          </Link>
+        </div>
       </div>
     </div>
   )
