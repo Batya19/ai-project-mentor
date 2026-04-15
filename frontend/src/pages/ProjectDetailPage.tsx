@@ -209,12 +209,6 @@ function PhaseAccordion({ index, phaseName, description, tasks, onToggle, state,
         {open && (
           <div className="px-5 pb-4 border-t border-white/60">
             {description && <p className="text-xs text-slate-400 mt-3 mb-1 leading-relaxed">{description}</p>}
-            {state === "active" && (
-              <div className="mt-3 mb-2 rounded-2xl bg-gradient-to-r from-violet-50 via-sky-50 to-emerald-50 border border-white/90 px-3.5 py-2.5 shadow-sm shadow-violet-100/60">
-                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-violet-500 mb-1">Motivation</p>
-                <p className="text-sm text-slate-600 leading-relaxed">{phaseVibe}</p>
-              </div>
-            )}
             {tasks.length > 0
               ? <ul className="divide-y divide-white/60">{tasks.map((t) => <TaskItem key={t.id} task={t} onToggle={onToggle} />)}</ul>
               : <p className="text-xs text-slate-300 mt-3">No tasks for this phase.</p>}
