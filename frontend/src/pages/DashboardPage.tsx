@@ -277,7 +277,6 @@ function ProjectCard({ project, index, featured = false }: { project: Project; i
               <div className="w-20 bg-slate-200/70 rounded-full h-1.5">
                 <div className={`bg-gradient-to-r ${accent} h-1.5 rounded-full transition-all`} style={{ width: `${progress}%` }} />
               </div>
-              <span className="text-[11px] font-bold text-slate-600">{progress}%</span>
             </div>
           </div>
 
