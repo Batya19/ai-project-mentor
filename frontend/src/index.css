@@ -30,6 +30,21 @@ button, a, [role="button"] { cursor: pointer; }
   background-clip: text;
 }
 
+/* Shimmer gradient text */
+@keyframes shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.text-shimmer {
+  background: linear-gradient(90deg, #8b5cf6, #0ea5e9, #10b981, #0ea5e9, #8b5cf6);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s ease-in-out infinite;
+}
+
 /* card lift */
 .card-lift {
   transition: transform 0.2s ease, box-shadow 0.2s ease;

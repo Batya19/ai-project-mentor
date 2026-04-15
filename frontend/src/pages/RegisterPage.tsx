@@ -34,12 +34,16 @@ export default function RegisterPage() {
       <div className="glow-orb w-[30rem] h-[30rem] bg-violet-300/60 -bottom-20 -left-20" />
       <div className="glow-orb w-[20rem] h-[20rem] bg-emerald-200/35 top-1/2 left-1/3" />
 
+      <Link to="/" className="absolute top-6 left-6 z-20">
+        <BrandLogo size="sm" theme="light" />
+      </Link>
+
       <div className="relative z-10 w-full max-w-sm">
         <div className="text-center mb-10">
-          <Link to="/" className="inline-flex items-center gap-2.5 mb-8">
-            <BrandLogo size="md" theme="light" />
-          </Link>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Start building today</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight mb-2">
+            <span className="text-slate-900">Start building </span>
+            <span className="text-shimmer">today</span>
+          </h1>
           <p className="text-slate-400 text-sm">Your first project plan is one click away</p>
         </div>
 
