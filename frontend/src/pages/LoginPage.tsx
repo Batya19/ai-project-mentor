@@ -8,6 +8,7 @@ import { useAuthStore } from "../store/authStore"
 export default function LoginPage() {
   const [searchParams] = useSearchParams()
   const justVerified = searchParams.get("verified") === "1"
+  const justReset = searchParams.get("reset") === "1"
   const emailParam = searchParams.get("email") ?? ""
   const [email, setEmail] = useState(emailParam)
   const [password, setPassword] = useState("")
@@ -27,7 +28,7 @@ export default function LoginPage() {
     } catch (err: unknown) {
       const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
       if (detail?.includes("not verified")) {
-        setError("Email not verified. Check your inbox or resend the code.")
+        navigate(`/verify?email=${encodeURIComponent(email)}`)
       } else {
         setError("Invalid email or password.")
       }
@@ -53,6 +54,9 @@ export default function LoginPage() {
 
         {justVerified && (
           <p className="mb-6 text-sm text-emerald-500 text-center font-medium">Email verified! Log in to continue.</p>
+        )}
+        {justReset && (
+          <p className="mb-6 text-sm text-emerald-500 text-center font-medium">Password reset! Log in with your new password.</p>
         )}
         {error && (
           <p className="mb-6 text-sm text-rose-500 text-center font-medium">{error}</p>
@@ -80,6 +84,11 @@ export default function LoginPage() {
               className="w-full bg-white/60 backdrop-blur-sm text-slate-900 border border-slate-200/70 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-transparent placeholder:text-slate-300 transition"
               placeholder="Your password"
             />
+          </div>
+          <div className="flex justify-end">
+            <Link to="/forgot-password" className="text-xs text-violet-500 font-medium hover:text-violet-600 transition">
+              Forgot password?
+            </Link>
           </div>
           <button
             type="submit"

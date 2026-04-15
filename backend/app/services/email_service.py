@@ -63,9 +63,9 @@ def verify_otp(db: Session, email: str, code: str, purpose: str = "register") ->
 
 def _send_otp_email(to_email: str, code: str, purpose: str) -> None:
     """Send the OTP code via SMTP."""
-    subject = "Your BuildFlow verification code"
+    subject = "Your BuildFlow verification code" if purpose == "register" else "Your BuildFlow password reset code"
 
-    purpose_text = "Enter this code to verify your account" if purpose == "register" else "Enter this code to log in"
+    purpose_text = "Enter this code to verify your account" if purpose == "register" else "Enter this code to reset your password"
 
     # Gmail strips <link> and <style> tags, so web fonts cannot load.
     # Use the best system font stack that visually matches Plus Jakarta Sans.

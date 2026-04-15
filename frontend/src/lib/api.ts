@@ -21,6 +21,10 @@ export const authApi = {
     api.post<{ message: string }>('/auth/verify-otp', { email, code }).then((r) => r.data),
   resendOtp: (email: string) =>
     api.post<{ message: string }>('/auth/resend-otp', { email }).then((r) => r.data),
+  forgotPassword: (email: string) =>
+    api.post<{ message: string }>('/auth/forgot-password', { email }).then((r) => r.data),
+  resetPassword: (email: string, code: string, new_password: string) =>
+    api.post<{ message: string }>('/auth/reset-password', { email, code, new_password }).then((r) => r.data),
   login: (email: string, password: string) =>
     api
       .post<{ access_token: string }>('/auth/login', { email, password })

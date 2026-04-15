@@ -5,16 +5,19 @@ from app.api.deps import get_current_user
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.auth import (
+    ForgotPasswordRequest,
     LoginRequest,
     MessageResponse,
     RegisterRequest,
     ResendOTPRequest,
+    ResetPasswordRequest,
     TokenResponse,
     UserResponse,
     VerifyOTPRequest,
 )
 from app.services.auth_service import login_user, register_user
 from app.services.email_service import create_and_send_otp, verify_otp
+from app.core.security import hash_password
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -50,6 +53,28 @@ def resend_otp(payload: ResendOTPRequest, db: Session = Depends(get_db)) -> Mess
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already verified")
     create_and_send_otp(db, payload.email, purpose="register")
     return MessageResponse(message="New verification code sent")
+
+
+@router.post("/forgot-password", response_model=MessageResponse)
+def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db)) -> MessageResponse:
+    user = db.query(User).filter(User.email == payload.email).first()
+    if not user:
+        # Don't reveal whether email exists
+        return MessageResponse(message="If that email is registered, a reset code has been sent.")
+    create_and_send_otp(db, payload.email, purpose="reset")
+    return MessageResponse(message="If that email is registered, a reset code has been sent.")
+
+
+@router.post("/reset-password", response_model=MessageResponse)
+def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_db)) -> MessageResponse:
+    if not verify_otp(db, payload.email, payload.code, purpose="reset"):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired code")
+    user = db.query(User).filter(User.email == payload.email).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    user.password_hash = hash_password(payload.new_password)
+    db.commit()
+    return MessageResponse(message="Password reset successfully")
 
 
 @router.post("/login", response_model=TokenResponse)
