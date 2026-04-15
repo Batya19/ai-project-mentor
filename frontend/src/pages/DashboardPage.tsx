@@ -344,40 +344,37 @@ export default function DashboardPage() {
 
         {/* ── Action Center ──────────────────────────────────────────── */}
         {continueProject && (
-          <div className="mb-10 relative rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden shadow-xl shadow-violet-600/15">
-            {/* Decorative glow orbs inside hero */}
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-violet-500/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-sky-500/15 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-violet-400 to-sky-400" />
-
-            <div className="relative px-6 py-6">
-              <p className="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-400 mb-3">
-                Continue where you left off
-              </p>
-
-              <div className="flex items-start justify-between gap-6">
-                <div className="min-w-0">
-                  <h3 className="text-lg font-extrabold text-white truncate mb-1">
-                    {continueProject.title}
-                  </h3>
-                  {continuePhase && (
-                    <p className="text-sm text-slate-300 font-medium">
-                      {/^phase\s+\d/i.test(continuePhase.phase.phase) ? continuePhase.phase.phase : `Phase ${continuePhase.index + 1}: ${continuePhase.phase.phase}`}
+          <div className="mb-10 -mx-6 px-6">
+            {/* Gradient border wrapper */}
+            <div className="relative rounded-2xl p-[2px] bg-gradient-to-r from-violet-500 via-sky-400 to-emerald-400">
+              <div className="rounded-[14px] bg-white/90 backdrop-blur-sm px-7 py-6">
+                <div className="flex items-center justify-between gap-6">
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-bold tracking-[0.2em] uppercase text-violet-500/70 mb-2">
+                      Continue where you left off
                     </p>
-                  )}
-                  {continueNext && (
-                    <p className="text-xs text-slate-500 mt-1">
-                      Next task: <span className="text-slate-400">{continueNext.name}</span>
-                    </p>
-                  )}
+                    <h3 className="text-xl font-extrabold text-slate-900 truncate mb-1">
+                      {continueProject.title}
+                    </h3>
+                    {continuePhase && (
+                      <p className="text-sm text-slate-600 font-medium">
+                        {/^phase\s+\d/i.test(continuePhase.phase.phase) ? continuePhase.phase.phase : `Phase ${continuePhase.index + 1}: ${continuePhase.phase.phase}`}
+                      </p>
+                    )}
+                    {continueNext && (
+                      <p className="text-xs text-slate-400 mt-1">
+                        Next task: <span className="text-slate-600">{continueNext.name}</span>
+                      </p>
+                    )}
+                  </div>
+
+                  <Link
+                    to={`/projects/${continueProject.id}`}
+                    className="flex-shrink-0 bg-gradient-to-r from-violet-600 to-sky-500 hover:from-violet-500 hover:to-sky-400 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-lg shadow-violet-600/25 hover:shadow-violet-600/40 transition-all duration-200"
+                  >
+                    Continue →
+                  </Link>
                 </div>
-
-                <Link
-                  to={`/projects/${continueProject.id}`}
-                  className="flex-shrink-0 bg-gradient-to-r from-violet-500 to-sky-400 hover:from-violet-400 hover:to-sky-300 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-all duration-200"
-                >
-                  Continue →
-                </Link>
               </div>
             </div>
           </div>
