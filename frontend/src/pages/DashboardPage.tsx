@@ -158,7 +158,7 @@ function sortByImportance(projects: Project[]): Project[] {
 
 /* ── ProjectCard ─────────────────────────────────────────────────────────── */
 
-function ProjectCard({ project, index }: { project: Project; index: number }) {
+function ProjectCard({ project, index, featured = false }: { project: Project; index: number; featured?: boolean }) {
   const totalTasks = project.tasks?.length ?? 0
   const doneTasks = project.tasks?.filter((t) => t.completed).length ?? 0
   const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0
@@ -167,6 +167,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   const health = getHealth(project)
   const lastActive = getLastActive(project)
   const status = getProjectStatus(project)
+  const nextTask = featured ? getNextTask(project) : null
 
   const rowRef = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
@@ -183,10 +184,12 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   }, [])
 
   return (
-    <div ref={rowRef} className="group relative py-3">
+    <div ref={rowRef} className="group relative">
       {/* Glassmorphism card */}
       <div
-        className="relative rounded-2xl bg-white/60 backdrop-blur-md border border-white/70 shadow-sm hover:shadow-md hover:shadow-violet-500/5 transition-all duration-300 overflow-hidden"
+        className={`relative rounded-2xl bg-white/60 backdrop-blur-md border border-white/70 shadow-sm hover:shadow-md hover:shadow-violet-500/5 transition-all duration-300 overflow-hidden h-full ${
+          featured ? "ring-1 ring-violet-200/50" : ""
+        }`}
       >
         {/* Accent line */}
         <div
@@ -233,13 +236,22 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 
           {/* Title */}
           <Link to={`/projects/${project.id}`} className="block mb-1.5 group/title">
-            <h3 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 group-hover/title:text-violet-600 transition leading-snug">
+            <h3 className={`font-extrabold tracking-tight text-slate-900 group-hover/title:text-violet-600 transition leading-snug ${
+              featured ? "text-xl sm:text-2xl" : "text-base sm:text-lg"
+            }`}>
               {project.title}
             </h3>
           </Link>
 
           {/* Description */}
-          <p className="text-slate-500 text-sm leading-relaxed max-w-xl mb-3 line-clamp-2">{project.description}</p>
+          <p className={`text-slate-500 text-sm leading-relaxed mb-3 ${featured ? "line-clamp-3" : "line-clamp-2"}`}>{project.description}</p>
+
+          {/* Next task — featured only */}
+          {featured && nextTask && (
+            <p className="text-xs text-slate-400 mb-3">
+              Next: <span className="text-slate-600 font-medium">{nextTask.name}</span>
+            </p>
+          )}
 
           {/* Tech pills + progress */}
           <div className="flex items-center gap-3 flex-wrap">
@@ -397,9 +409,17 @@ export default function DashboardPage() {
         )}
 
         {sorted.length > 0 && (
-          <div className="flex flex-col gap-4">
-            {sorted.map((p, i) => <ProjectCard key={p.id} project={p} index={i} />)}
-          </div>
+          <>
+            {/* Featured card — full width */}
+            <ProjectCard key={sorted[0].id} project={sorted[0]} index={0} featured />
+
+            {/* Rest — 2-column grid */}
+            {sorted.length > 1 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                {sorted.slice(1).map((p, i) => <ProjectCard key={p.id} project={p} index={i + 1} />)}
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>
