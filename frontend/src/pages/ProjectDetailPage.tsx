@@ -138,10 +138,10 @@ function buildMotivationMessage({
   return "No recent activity. Pick any task and create the first day of a streak."
 }
 
-function PhaseAccordion({ index, phaseName, description, tasks, onToggle }: {
-  index: number; phaseName: string; description: string; tasks: Task[]; onToggle: (id: string, v: boolean) => void
+function PhaseAccordion({ index, phaseName, description, tasks, onToggle, state, isLast }: {
+  index: number; phaseName: string; description: string; tasks: Task[]; onToggle: (id: string, v: boolean) => void; state: "done" | "active" | "locked"; isLast: boolean
 }) {
-  const [open, setOpen] = useState(index === 0)
+  const [open, setOpen] = useState(state === "active")
   const done = tasks.filter((t) => t.completed).length
   const pct = tasks.length > 0 ? Math.round((done / tasks.length) * 100) : 0
   const recentDone = recentTaskCount(tasks)
@@ -157,36 +157,70 @@ function PhaseAccordion({ index, phaseName, description, tasks, onToggle }: {
           : "No recent activity in this phase. Open it and pick the next task."
 
   return (
-    <div className={`border rounded-3xl overflow-hidden transition bg-white/72 backdrop-blur-xl ${pct === 100 ? "border-emerald-200 shadow-xl shadow-emerald-100/60" : `${colors.border} bg-gradient-to-br ${colors.bg}`}`}>
-      <button type="button" onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/50 transition text-left"
-      >
-        <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white shadow-sm ${pct === 100 ? "bg-gradient-to-br from-emerald-400 to-teal-400" : colors.num}`}>
-            {pct === 100 ? "✓" : index + 1}
+    <div className="relative flex gap-4">
+      {/* Timeline spine */}
+      <div className="flex flex-col items-center">
+        {/* Node */}
+        <div className={`relative z-10 w-10 h-10 rounded-2xl flex items-center justify-center text-xs font-bold text-white shadow-sm flex-shrink-0 transition-all duration-300 ${
+          state === "done"
+            ? "bg-gradient-to-br from-emerald-400 to-teal-400 shadow-emerald-200"
+            : state === "active"
+              ? `${colors.num} shadow-lg ring-4 ring-white/80 scale-110`
+              : "bg-slate-200 text-slate-400 shadow-none"
+        }`}>
+          {state === "done" ? "✓" : index + 1}
+        </div>
+        {/* Connecting line */}
+        {!isLast && (
+          <div className={`w-0.5 flex-1 min-h-[24px] rounded-full transition-colors duration-500 ${
+            state === "done" ? "bg-emerald-300" : "bg-slate-200"
+          }`} />
+        )}
+      </div>
+
+      {/* Card */}
+      <div className={`flex-1 mb-3 border rounded-2xl overflow-hidden transition-all duration-300 ${
+        state === "done"
+          ? "bg-white/40 border-emerald-200/60 opacity-70"
+          : state === "active"
+            ? "bg-white/80 backdrop-blur-md border-violet-200 shadow-lg shadow-violet-100/40 ring-1 ring-violet-100/50"
+            : "bg-white/30 border-slate-200/50 opacity-50"
+      }`}>
+        <button type="button" onClick={() => setOpen((v) => !v)}
+          className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/50 transition text-left"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <span className={`font-bold text-sm truncate ${
+              state === "active" ? "text-slate-900" : state === "done" ? "text-slate-500" : "text-slate-400"
+            }`}>{phaseName}</span>
+            {state === "active" && (
+              <span className="text-[10px] font-bold uppercase tracking-widest text-violet-500 bg-violet-50 px-2 py-0.5 rounded-full border border-violet-100 flex-shrink-0">Current</span>
+            )}
           </div>
-          <span className="text-slate-900 font-bold text-sm">{phaseName}</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-slate-400 hidden sm:block">{done}/{tasks.length}</span>
-          {pct === 100 && <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold border border-emerald-200">Done ✓</span>}
-          <svg className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </div>
-      </button>
-      {open && (
-        <div className="px-5 pb-4 border-t border-white/60">
-          {description && <p className="text-xs text-slate-400 mt-3 mb-1 leading-relaxed">{description}</p>}
-          <div className="mt-3 mb-2 rounded-2xl bg-gradient-to-r from-violet-50 via-sky-50 to-emerald-50 border border-white/90 px-3.5 py-2.5 shadow-sm shadow-violet-100/60">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-violet-500 mb-1">Motivation</p>
-            <p className="text-sm text-slate-600 leading-relaxed">{phaseVibe}</p>
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <span className="text-xs text-slate-400 hidden sm:block">{done}/{tasks.length}</span>
+            {state === "done" && <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold border border-emerald-200">Done ✓</span>}
+            {state === "locked" && <span className="text-xs text-slate-300">🔒</span>}
+            <svg className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
           </div>
-          {tasks.length > 0
-            ? <ul className="divide-y divide-white/60">{tasks.map((t) => <TaskItem key={t.id} task={t} onToggle={onToggle} />)}</ul>
-            : <p className="text-xs text-slate-300 mt-3">No tasks for this phase.</p>}
-        </div>
-      )}
+        </button>
+        {open && (
+          <div className="px-5 pb-4 border-t border-white/60">
+            {description && <p className="text-xs text-slate-400 mt-3 mb-1 leading-relaxed">{description}</p>}
+            {state === "active" && (
+              <div className="mt-3 mb-2 rounded-2xl bg-gradient-to-r from-violet-50 via-sky-50 to-emerald-50 border border-white/90 px-3.5 py-2.5 shadow-sm shadow-violet-100/60">
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-violet-500 mb-1">Motivation</p>
+                <p className="text-sm text-slate-600 leading-relaxed">{phaseVibe}</p>
+              </div>
+            )}
+            {tasks.length > 0
+              ? <ul className="divide-y divide-white/60">{tasks.map((t) => <TaskItem key={t.id} task={t} onToggle={onToggle} />)}</ul>
+              : <p className="text-xs text-slate-300 mt-3">No tasks for this phase.</p>}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -323,24 +357,47 @@ export default function ProjectDetailPage() {
           )}
         </div>
 
-        {/* Progress card */}
-        <div className="surface-glow rounded-3xl p-5 mb-6 shadow-2xl shadow-black/15">
-          <div className="flex justify-between items-center mb-3">
-            <span className="text-sm font-bold text-slate-800">Overall progress</span>
-            <span className={`text-sm font-extrabold ${progress === 100 ? "text-emerald-600" : "text-violet-600"}`}>{progress}%</span>
+        {/* Progress card with circular indicator */}
+        <div className="rounded-3xl bg-white/60 backdrop-blur-md border border-white/70 p-5 mb-6 shadow-lg shadow-violet-100/20">
+          <div className="flex items-center gap-5">
+            {/* Circular progress */}
+            <div className="relative w-20 h-20 flex-shrink-0">
+              <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="34" fill="none" stroke="#e2e8f0" strokeWidth="6" opacity="0.4" />
+                <circle
+                  cx="40" cy="40" r="34" fill="none"
+                  stroke="url(#progress-grad)"
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 34}`}
+                  strokeDashoffset={`${2 * Math.PI * 34 * (1 - progress / 100)}`}
+                  className="transition-all duration-1000 ease-out"
+                />
+                <defs>
+                  <linearGradient id="progress-grad" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor={progress === 100 ? "#34d399" : "#7c3aed"} />
+                    <stop offset="50%" stopColor={progress === 100 ? "#2dd4bf" : "#0ea5e9"} />
+                    <stop offset="100%" stopColor={progress === 100 ? "#34d399" : "#10b981"} />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className={`text-lg font-extrabold ${progress === 100 ? "text-emerald-600" : "text-slate-800"}`}>{progress}%</span>
+              </div>
+            </div>
+            <div>
+              <span className="text-sm font-bold text-slate-800">Overall progress</span>
+              <p className="text-xs text-slate-400 mt-0.5">{doneTasks} of {totalTasks} tasks completed</p>
+              {dailyStreak > 0 && (
+                <p className="text-xs font-semibold text-violet-500 mt-1">🔥 {dailyStreak}-day streak</p>
+              )}
+            </div>
           </div>
-          <div className="w-full bg-white/70 rounded-full h-2 mb-2">
-            <div
-              className={`h-2 rounded-full transition-all duration-700 ${progress === 100 ? "bg-gradient-to-r from-emerald-400 to-teal-400 shadow-[0_0_14px_rgba(52,211,153,0.45)]" : "bg-gradient-to-r from-violet-500 via-sky-400 to-emerald-400 shadow-[0_0_16px_rgba(56,189,248,0.45)]"}`}
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <p className="text-xs text-slate-400">{doneTasks} of {totalTasks} tasks completed</p>
         </div>
 
-        <div className="mb-6 rounded-3xl bg-gradient-to-r from-violet-100 via-sky-50 to-emerald-50 border border-white/90 px-5 py-4 shadow-xl shadow-violet-100/60">
+        <div className="mb-6 rounded-2xl bg-white/50 backdrop-blur-lg border border-white/60 px-5 py-4 shadow-lg shadow-violet-100/20">
           <div className="flex items-start gap-3">
-            <div className={`mt-0.5 h-9 w-9 rounded-2xl bg-gradient-to-br from-violet-500 via-sky-400 to-emerald-400 text-white flex items-center justify-center shadow-lg shadow-violet-200 transition-opacity ${coachLoading ? "opacity-60" : ""}`}>✦</div>
+            <div className={`mt-0.5 text-3xl transition-opacity ${coachLoading ? "opacity-60" : ""}`}>🚀</div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-500">
@@ -361,8 +418,8 @@ export default function ProjectDetailPage() {
               {coachLoading ? (
                 <div className="h-4 bg-violet-100/60 rounded-full w-3/4 animate-pulse" />
               ) : (
-                <p className="text-sm leading-relaxed text-slate-700">
-                  {aiCoachMessage || motivationMessage}
+                <p className="text-sm leading-relaxed text-slate-700 italic font-medium">
+                  "{aiCoachMessage || motivationMessage}"
                 </p>
               )}
             </div>
@@ -392,14 +449,25 @@ export default function ProjectDetailPage() {
         ) : (
           <>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Roadmap</p>
-            <div className="space-y-3">
-              {project.roadmap.map((phase, i) => (
-                <PhaseAccordion
-                  key={i} index={i} phaseName={phase.phase} description={phase.description}
-                  tasks={project.tasks.filter((t) => t.phase === phase.phase)}
-                  onToggle={handleToggle}
-                />
-              ))}
+            <div>
+              {project.roadmap.map((phase, i) => {
+                const phaseTasks = project.tasks.filter((t) => t.phase === phase.phase)
+                const allDone = phaseTasks.length > 0 && phaseTasks.every((t) => t.completed)
+                const isActive = !allDone && project.roadmap.slice(0, i).every((prev) => {
+                  const prevTasks = project.tasks.filter((t) => t.phase === prev.phase)
+                  return prevTasks.length > 0 && prevTasks.every((t) => t.completed)
+                })
+                const state: "done" | "active" | "locked" = allDone ? "done" : isActive || i === 0 && !allDone ? "active" : "locked"
+                return (
+                  <PhaseAccordion
+                    key={i} index={i} phaseName={phase.phase} description={phase.description}
+                    tasks={phaseTasks}
+                    onToggle={handleToggle}
+                    state={state}
+                    isLast={i === project.roadmap.length - 1}
+                  />
+                )
+              })}
             </div>
 
             {progress === 100 && (
