@@ -1,4 +1,4 @@
-﻿import { useState } from "react"
+﻿import { useState, Fragment } from "react"
 import { useParams, Link, useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { projectsApi } from "../lib/api"
@@ -138,30 +138,30 @@ function buildMotivationMessage({
   return "No recent activity. Pick any task and create the first day of a streak."
 }
 
-function PhaseAccordion({ index, phaseName, description, tasks, onToggle, state, isLast }: {
-  index: number; phaseName: string; description: string; tasks: Task[]; onToggle: (id: string, v: boolean) => void; state: "done" | "active" | "locked"; isLast: boolean
+/* ── Zigzag node offsets for organic abstract roadmap ── */
+const NODE_OFFSETS: Array<{ side: "left" | "right"; pad: string }> = [
+  { side: "left",  pad: "pr-8 sm:pr-16 lg:pr-24" },
+  { side: "right", pad: "pl-6 sm:pl-12 lg:pl-20" },
+  { side: "left",  pad: "pr-12 sm:pr-24 lg:pr-36" },
+  { side: "right", pad: "pl-10 sm:pl-20 lg:pl-28" },
+  { side: "left",  pad: "pr-4 sm:pr-8 lg:pr-14" },
+]
+
+function PhaseAccordion({ index, phaseName, description, tasks, onToggle, state, side }: {
+  index: number; phaseName: string; description: string; tasks: Task[];
+  onToggle: (id: string, v: boolean) => void; state: "done" | "active" | "locked";
+  side: "left" | "right"
 }) {
   const [open, setOpen] = useState(state === "active")
   const done = tasks.filter((t) => t.completed).length
-  const pct = tasks.length > 0 ? Math.round((done / tasks.length) * 100) : 0
-  const recentDone = recentTaskCount(tasks)
   const colors = PHASE_COLORS[index % PHASE_COLORS.length]
-  const phaseVibe = pct === 100
-    ? `Phase closed: all ${done} tasks finished.`
-    : recentDone >= 3
-      ? `${recentDone} tasks completed in the last 48 h. Strong momentum here.`
-      : recentDone === 2
-        ? "2 tasks done recently. Keep feeding the pace."
-        : recentDone === 1
-          ? "1 task completed recently. Add another before the session ends."
-          : "No recent activity in this phase. Open it and pick the next task."
+  const isRight = side === "right"
 
   return (
-    <div className="relative flex gap-4">
-      {/* Timeline spine */}
-      <div className="flex flex-col items-center">
-        {/* Node */}
-        <div className={`relative z-10 w-10 h-10 rounded-2xl flex items-center justify-center text-xs font-bold text-white shadow-sm flex-shrink-0 transition-all duration-300 ${
+    <div className={`flex ${isRight ? "flex-row-reverse" : "flex-row"} items-start gap-3 sm:gap-4`}>
+      {/* ── Node circle ── */}
+      <div className="relative flex-shrink-0">
+        <div className={`relative z-10 w-11 h-11 rounded-2xl flex items-center justify-center text-xs font-bold text-white shadow-sm transition-all duration-500 ${
           state === "done"
             ? "bg-gradient-to-br from-emerald-400 to-teal-400 shadow-emerald-200"
             : state === "active"
@@ -170,16 +170,13 @@ function PhaseAccordion({ index, phaseName, description, tasks, onToggle, state,
         }`}>
           {state === "done" ? "✓" : index + 1}
         </div>
-        {/* Connecting line */}
-        {!isLast && (
-          <div className={`w-0.5 flex-1 min-h-[24px] rounded-full transition-colors duration-500 ${
-            state === "done" ? "bg-emerald-300" : "bg-slate-200"
-          }`} />
+        {state === "active" && (
+          <div className={`absolute inset-0 rounded-2xl ${colors.num} opacity-25 blur-lg animate-pulse`} />
         )}
       </div>
 
-      {/* Card */}
-      <div className={`flex-1 mb-3 border rounded-2xl overflow-hidden transition-all duration-300 ${
+      {/* ── Card ── */}
+      <div className={`flex-1 border rounded-2xl overflow-hidden transition-all duration-300 ${
         state === "done"
           ? "bg-white/40 border-emerald-200/60 opacity-70"
           : state === "active"
@@ -411,8 +408,8 @@ export default function ProjectDetailPage() {
           <ArchitectView project={project} />
         ) : (
           <>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Roadmap</p>
-            <div>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-5">Roadmap</p>
+            <div className="relative">
               {project.roadmap.map((phase, i) => {
                 const phaseTasks = project.tasks.filter((t) => t.phase === phase.phase)
                 const allDone = phaseTasks.length > 0 && phaseTasks.every((t) => t.completed)
@@ -421,14 +418,48 @@ export default function ProjectDetailPage() {
                   return prevTasks.length > 0 && prevTasks.every((t) => t.completed)
                 })
                 const state: "done" | "active" | "locked" = allDone ? "done" : isActive || i === 0 && !allDone ? "active" : "locked"
+                const layout = NODE_OFFSETS[i % NODE_OFFSETS.length]
+                const nextLayout = i < project.roadmap.length - 1 ? NODE_OFFSETS[(i + 1) % NODE_OFFSETS.length] : null
+                const isLast = i === project.roadmap.length - 1
+                const fromX = layout.side === "left" ? 22 : 378
+                const toX = nextLayout ? (nextLayout.side === "left" ? 22 : 378) : 0
+
                 return (
-                  <PhaseAccordion
-                    key={i} index={i} phaseName={phase.phase} description={phase.description}
-                    tasks={phaseTasks}
-                    onToggle={handleToggle}
-                    state={state}
-                    isLast={i === project.roadmap.length - 1}
-                  />
+                  <Fragment key={i}>
+                    <div className={layout.pad}>
+                      <PhaseAccordion
+                        index={i} phaseName={phase.phase} description={phase.description}
+                        tasks={phaseTasks}
+                        onToggle={handleToggle}
+                        state={state}
+                        side={layout.side}
+                      />
+                    </div>
+                    {/* ── Curved abstract connector ── */}
+                    {!isLast && nextLayout && (
+                      <div className="relative h-10 sm:h-14 my-1 pointer-events-none">
+                        <svg className="absolute inset-0 w-full h-full overflow-visible" viewBox="0 0 400 60" preserveAspectRatio="none">
+                          <path
+                            d={`M ${fromX},0 C ${fromX},32 ${toX},28 ${toX},60`}
+                            stroke={state === "done" ? "#86efac" : "#e2e8f0"}
+                            strokeWidth="2"
+                            fill="none"
+                            vectorEffect="non-scaling-stroke"
+                            strokeLinecap="round"
+                            strokeDasharray={state === "locked" ? "6 4" : "none"}
+                            opacity={state === "locked" ? 0.45 : 0.7}
+                          />
+                          <circle
+                            cx={(fromX + toX) / 2}
+                            cy="30"
+                            r="3"
+                            fill={state === "done" ? "#6ee7b7" : "#cbd5e1"}
+                            opacity={state === "locked" ? 0.25 : 0.5}
+                          />
+                        </svg>
+                      </div>
+                    )}
+                  </Fragment>
                 )
               })}
             </div>
