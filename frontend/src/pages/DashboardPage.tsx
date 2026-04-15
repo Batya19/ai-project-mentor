@@ -20,6 +20,69 @@ const ACCENT_GRADIENTS = [
   "from-emerald-500 to-sky-500",
 ]
 
+/* ── Tech icon map ───────────────────────────────────────────────────────── */
+
+const TECH_ICONS: Record<string, { icon: string; bg: string; fg: string }> = {
+  react:       { icon: "⚛",  bg: "bg-sky-100",     fg: "text-sky-700" },
+  "react.js":  { icon: "⚛",  bg: "bg-sky-100",     fg: "text-sky-700" },
+  reactjs:     { icon: "⚛",  bg: "bg-sky-100",     fg: "text-sky-700" },
+  "next.js":   { icon: "▲",  bg: "bg-slate-100",   fg: "text-slate-700" },
+  nextjs:      { icon: "▲",  bg: "bg-slate-100",   fg: "text-slate-700" },
+  vue:         { icon: "🟢", bg: "bg-emerald-50",  fg: "text-emerald-700" },
+  "vue.js":    { icon: "🟢", bg: "bg-emerald-50",  fg: "text-emerald-700" },
+  angular:     { icon: "🅰",  bg: "bg-red-50",      fg: "text-red-700" },
+  svelte:      { icon: "🔥", bg: "bg-orange-50",   fg: "text-orange-700" },
+  typescript:  { icon: "TS", bg: "bg-blue-100",    fg: "text-blue-700" },
+  javascript:  { icon: "JS", bg: "bg-yellow-100",  fg: "text-yellow-700" },
+  python:      { icon: "🐍", bg: "bg-emerald-100", fg: "text-emerald-700" },
+  java:        { icon: "☕", bg: "bg-orange-100",  fg: "text-orange-700" },
+  "c#":        { icon: "C#", bg: "bg-violet-100",  fg: "text-violet-700" },
+  csharp:      { icon: "C#", bg: "bg-violet-100",  fg: "text-violet-700" },
+  "c++":       { icon: "C+", bg: "bg-blue-100",    fg: "text-blue-700" },
+  c:           { icon: "C",  bg: "bg-slate-100",   fg: "text-slate-700" },
+  go:          { icon: "Go", bg: "bg-cyan-100",    fg: "text-cyan-700" },
+  golang:      { icon: "Go", bg: "bg-cyan-100",    fg: "text-cyan-700" },
+  rust:        { icon: "🦀", bg: "bg-orange-100",  fg: "text-orange-700" },
+  swift:       { icon: "🐦", bg: "bg-orange-50",   fg: "text-orange-700" },
+  kotlin:      { icon: "K",  bg: "bg-violet-100",  fg: "text-violet-700" },
+  ruby:        { icon: "💎", bg: "bg-red-100",     fg: "text-red-700" },
+  php:         { icon: "🐘", bg: "bg-indigo-100",  fg: "text-indigo-700" },
+  node:        { icon: "⬢",  bg: "bg-green-100",   fg: "text-green-700" },
+  "node.js":   { icon: "⬢",  bg: "bg-green-100",   fg: "text-green-700" },
+  nodejs:      { icon: "⬢",  bg: "bg-green-100",   fg: "text-green-700" },
+  express:     { icon: "Ex", bg: "bg-slate-100",   fg: "text-slate-700" },
+  "express.js":{ icon: "Ex", bg: "bg-slate-100",   fg: "text-slate-700" },
+  fastapi:     { icon: "⚡", bg: "bg-emerald-100", fg: "text-emerald-700" },
+  django:      { icon: "🎸", bg: "bg-green-100",   fg: "text-green-700" },
+  flask:       { icon: "🧪", bg: "bg-slate-100",   fg: "text-slate-700" },
+  docker:      { icon: "🐳", bg: "bg-sky-100",     fg: "text-sky-700" },
+  kubernetes:  { icon: "☸",  bg: "bg-blue-100",    fg: "text-blue-700" },
+  aws:         { icon: "☁",  bg: "bg-amber-100",   fg: "text-amber-700" },
+  firebase:    { icon: "🔥", bg: "bg-amber-100",   fg: "text-amber-700" },
+  mongodb:     { icon: "🍃", bg: "bg-green-100",   fg: "text-green-700" },
+  postgresql:  { icon: "🐘", bg: "bg-blue-100",    fg: "text-blue-700" },
+  postgres:    { icon: "🐘", bg: "bg-blue-100",    fg: "text-blue-700" },
+  mysql:       { icon: "🗄", bg: "bg-sky-100",     fg: "text-sky-700" },
+  redis:       { icon: "◆",  bg: "bg-red-100",     fg: "text-red-700" },
+  graphql:     { icon: "◈",  bg: "bg-pink-100",    fg: "text-pink-700" },
+  tailwind:    { icon: "🌊", bg: "bg-cyan-100",    fg: "text-cyan-700" },
+  tailwindcss: { icon: "🌊", bg: "bg-cyan-100",    fg: "text-cyan-700" },
+  "tailwind css":{ icon: "🌊", bg: "bg-cyan-100",  fg: "text-cyan-700" },
+  html:        { icon: "<>", bg: "bg-orange-100",  fg: "text-orange-700" },
+  css:         { icon: "#",  bg: "bg-blue-100",    fg: "text-blue-700" },
+  sass:        { icon: "S",  bg: "bg-pink-100",    fg: "text-pink-700" },
+  git:         { icon: "⎇",  bg: "bg-orange-100",  fg: "text-orange-700" },
+  flutter:     { icon: "💙", bg: "bg-sky-100",     fg: "text-sky-700" },
+  dart:        { icon: "🎯", bg: "bg-sky-100",     fg: "text-sky-700" },
+  sql:         { icon: "🗃", bg: "bg-slate-100",   fg: "text-slate-700" },
+}
+
+const DEFAULT_TECH = { icon: "•", bg: "bg-slate-100", fg: "text-slate-600" }
+
+function getTechStyle(tech: string) {
+  return TECH_ICONS[tech.toLowerCase()] ?? DEFAULT_TECH
+}
+
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
 
 type ProjectStatus = "in-progress" | "not-started" | "completed"
@@ -71,15 +134,15 @@ function timeAgo(date: Date): string {
   return months <= 1 ? "1 month ago" : `${months} months ago`
 }
 
-function getHealth(project: Project): { label: string; color: string; dot: string } {
+function getHealth(project: Project): { label: string; color: string; dot: string; pulse: boolean } {
   const status = getProjectStatus(project)
-  if (status === "completed") return { label: "Completed", color: "text-emerald-600", dot: "bg-emerald-500" }
-  if (status === "not-started") return { label: "Not started", color: "text-slate-400", dot: "bg-slate-300" }
+  if (status === "completed") return { label: "Completed", color: "text-emerald-600", dot: "bg-emerald-500", pulse: false }
+  if (status === "not-started") return { label: "Not started", color: "text-slate-400", dot: "bg-slate-300", pulse: false }
   const last = getLastActive(project)
-  if (!last) return { label: "On track", color: "text-emerald-600", dot: "bg-emerald-500" }
+  if (!last) return { label: "On track", color: "text-emerald-600", dot: "bg-emerald-500", pulse: true }
   const daysSince = Math.floor((Date.now() - last.getTime()) / 86_400_000)
-  if (daysSince > 7) return { label: "Stuck", color: "text-amber-600", dot: "bg-amber-500" }
-  return { label: "On track", color: "text-emerald-600", dot: "bg-emerald-500" }
+  if (daysSince > 7) return { label: "Stuck", color: "text-amber-600", dot: "bg-amber-500", pulse: false }
+  return { label: "On track", color: "text-emerald-600", dot: "bg-emerald-500", pulse: true }
 }
 
 function sortByImportance(projects: Project[]): Project[] {
@@ -120,94 +183,114 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   }, [])
 
   return (
-    <div ref={rowRef} className="group relative py-5">
+    <div ref={rowRef} className="group relative py-3">
+      {/* Glassmorphism card */}
       <div
-        className={`absolute left-0 top-5 bottom-5 w-[3px] rounded-full bg-gradient-to-b ${accent} group-hover:opacity-100 transition-all duration-[1400ms] ease-out`}
-        style={{
-          opacity: visible ? 0.6 : 0,
-          transform: visible ? "scaleY(1)" : "scaleY(0)",
-          transformOrigin: "top",
-        }}
-      />
+        className="relative rounded-2xl bg-white/60 backdrop-blur-md border border-white/70 shadow-sm hover:shadow-md hover:shadow-violet-500/5 transition-all duration-300 overflow-hidden"
+      >
+        {/* Accent line */}
+        <div
+          className={`absolute left-0 top-0 bottom-0 w-[3px] rounded-full bg-gradient-to-b ${accent} transition-all duration-[1400ms] ease-out`}
+          style={{
+            opacity: visible ? 0.7 : 0,
+            transform: visible ? "scaleY(1)" : "scaleY(0)",
+            transformOrigin: "top",
+          }}
+        />
 
-      <div className="pl-6">
-        {/* Meta row */}
-        <div className="flex items-center gap-2.5 mb-2 flex-wrap">
-          <span className="text-[11px] font-bold tracking-[0.24em] text-slate-400">{String(index + 1).padStart(2, "0")}</span>
-          <span className={`text-[11px] font-bold uppercase tracking-[0.2em] ${LEVEL_STYLE[project.level] ?? "text-slate-500"}`}>
-            {project.level}
-          </span>
-          {project.domain && <span className="text-[11px] text-slate-500 font-medium">· {project.domain}</span>}
-
-          {/* Status pill */}
-          <span className="inline-flex items-center gap-1.5">
-            <span className={`w-1.5 h-1.5 rounded-full ${health.dot}`} />
-            <span className={`text-[11px] font-semibold ${health.color}`}>{health.label}</span>
-          </span>
-
-          {/* Phase indicator */}
-          {phaseInfo && (
-            <span className="text-[11px] text-slate-500 font-medium">
-              Phase {phaseInfo.index + 1} of {phaseInfo.total}
+        <div className="pl-6 pr-5 py-5">
+          {/* Meta row */}
+          <div className="flex items-center gap-2.5 mb-2 flex-wrap">
+            <span className="text-[11px] font-bold tracking-[0.24em] text-slate-400">{String(index + 1).padStart(2, "0")}</span>
+            <span className={`text-[11px] font-bold uppercase tracking-[0.2em] ${LEVEL_STYLE[project.level] ?? "text-slate-500"}`}>
+              {project.level}
             </span>
-          )}
+            {project.domain && <span className="text-[11px] text-slate-500 font-medium">· {project.domain}</span>}
 
-          {/* Last active */}
-          <span className="text-[11px] text-slate-400 ml-auto">
-            {lastActive ? `Active ${timeAgo(lastActive)}` : new Date(project.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-          </span>
-        </div>
+            {/* Pulsing status indicator */}
+            <span className="inline-flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                {health.pulse && (
+                  <span className={`absolute inset-0 rounded-full ${health.dot} opacity-75 animate-ping`} />
+                )}
+                <span className={`relative inline-flex h-2 w-2 rounded-full ${health.dot}`} />
+              </span>
+              <span className={`text-[11px] font-semibold ${health.color}`}>{health.label}</span>
+            </span>
 
-        {/* Title */}
-        <Link to={`/projects/${project.id}`} className="block mb-1.5 group/title">
-          <h3 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 group-hover/title:text-violet-600 transition leading-snug">
-            {project.title}
-          </h3>
-        </Link>
+            {/* Phase indicator */}
+            {phaseInfo && (
+              <span className="text-[11px] text-slate-500 font-medium">
+                Phase {phaseInfo.index + 1} of {phaseInfo.total}
+              </span>
+            )}
 
-        {/* Description */}
-        <p className="text-slate-500 text-sm leading-relaxed max-w-xl mb-3 line-clamp-2">{project.description}</p>
+            {/* Last active */}
+            <span className="text-[11px] text-slate-400 ml-auto">
+              {lastActive ? `Active ${timeAgo(lastActive)}` : new Date(project.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+            </span>
+          </div>
 
-        {/* Tech + progress */}
-        <div className="flex items-center gap-3 flex-wrap">
-          {project.technologies?.length > 0 && (
-            <div className="flex items-center gap-1.5">
-              {project.technologies.slice(0, 3).map((tech) => (
-                <span key={tech} className="text-[11px] font-semibold text-slate-500 tracking-wide">{tech}</span>
-              ))}
-              {project.technologies.length > 3 && (
-                <span className="text-[11px] text-slate-400">+{project.technologies.length - 3}</span>
-              )}
+          {/* Title */}
+          <Link to={`/projects/${project.id}`} className="block mb-1.5 group/title">
+            <h3 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 group-hover/title:text-violet-600 transition leading-snug">
+              {project.title}
+            </h3>
+          </Link>
+
+          {/* Description */}
+          <p className="text-slate-500 text-sm leading-relaxed max-w-xl mb-3 line-clamp-2">{project.description}</p>
+
+          {/* Tech pills + progress */}
+          <div className="flex items-center gap-3 flex-wrap">
+            {project.technologies?.length > 0 && (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {project.technologies.slice(0, 4).map((tech) => {
+                  const s = getTechStyle(tech)
+                  return (
+                    <span key={tech} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold ${s.bg} ${s.fg}`}>
+                      <span className="text-[10px] leading-none">{s.icon}</span>
+                      {tech}
+                    </span>
+                  )
+                })}
+                {project.technologies.length > 4 && (
+                  <span className="text-[11px] text-slate-400 font-medium">+{project.technologies.length - 4}</span>
+                )}
+              </div>
+            )}
+
+            <div className="flex items-center gap-2.5 ml-auto">
+              <span className="text-[11px] text-slate-500 font-medium">{doneTasks}/{totalTasks}</span>
+              <div className="w-20 bg-slate-200/70 rounded-full h-1.5">
+                <div className={`bg-gradient-to-r ${accent} h-1.5 rounded-full transition-all`} style={{ width: `${progress}%` }} />
+              </div>
+              <span className="text-[11px] font-bold text-slate-600">{progress}%</span>
             </div>
-          )}
+          </div>
 
-          <div className="flex items-center gap-2.5 ml-auto">
-            <span className="text-[11px] text-slate-500 font-medium">{doneTasks}/{totalTasks}</span>
-            <div className="w-20 bg-slate-200 rounded-full h-1.5">
-              <div className={`bg-gradient-to-r ${accent} h-1.5 rounded-full transition-all`} style={{ width: `${progress}%` }} />
-            </div>
-            <span className="text-[11px] font-bold text-slate-600">{progress}%</span>
+          {/* Action */}
+          <div className="mt-3">
+            {status !== "completed" ? (
+              <Link
+                to={`/projects/${project.id}`}
+                className={`inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl shadow-sm transition-all duration-200 ${
+                  status === "in-progress"
+                    ? "bg-gradient-to-r from-violet-600 to-sky-500 text-white shadow-violet-600/20 hover:shadow-violet-600/40 hover:from-violet-500 hover:to-sky-400"
+                    : "bg-gradient-to-r from-slate-700 to-slate-600 text-white shadow-slate-600/20 hover:shadow-slate-600/40 hover:from-slate-600 hover:to-slate-500"
+                }`}
+              >
+                {status === "in-progress" ? "Continue Coding" : "Start First Phase"}
+                <span>→</span>
+              </Link>
+            ) : (
+              <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">✓ Completed</span>
+            )}
           </div>
         </div>
-
-        {/* Action */}
-        <div className="mt-3">
-          {status !== "completed" ? (
-            <Link
-              to={`/projects/${project.id}`}
-              className={`inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl shadow-sm transition-all duration-200 ${
-                status === "in-progress"
-                  ? "bg-gradient-to-r from-violet-600 to-sky-500 text-white shadow-violet-600/20 hover:shadow-violet-600/40 hover:from-violet-500 hover:to-sky-400"
-                  : "bg-gradient-to-r from-slate-700 to-slate-600 text-white shadow-slate-600/20 hover:shadow-slate-600/40 hover:from-slate-600 hover:to-slate-500"
-              }`}
-            >
-              {status === "in-progress" ? "Continue Coding" : "Start First Phase"}
-              <span>→</span>
-            </Link>
-          ) : (
-            <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">✓ Completed</span>
-          )}
-        </div>
+      </div>
+    </div>
+  )
       </div>
     </div>
   )
@@ -264,34 +347,37 @@ export default function DashboardPage() {
 
         {/* ── Action Center ──────────────────────────────────────────── */}
         {continueProject && (
-          <div className="mb-10 relative rounded-2xl bg-white/60 backdrop-blur-sm border border-white/80 overflow-hidden">
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-violet-500 to-sky-500" />
+          <div className="mb-10 relative rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden shadow-xl shadow-violet-600/15">
+            {/* Decorative glow orbs inside hero */}
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-violet-500/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-sky-500/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-violet-400 to-sky-400" />
 
-            <div className="px-6 py-5">
+            <div className="relative px-6 py-6">
               <p className="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-400 mb-3">
                 Continue where you left off
               </p>
 
               <div className="flex items-start justify-between gap-6">
                 <div className="min-w-0">
-                  <h3 className="text-lg font-extrabold text-slate-900 truncate mb-1">
+                  <h3 className="text-lg font-extrabold text-white truncate mb-1">
                     {continueProject.title}
                   </h3>
                   {continuePhase && (
-                    <p className="text-sm text-slate-600 font-medium">
+                    <p className="text-sm text-slate-300 font-medium">
                       {/^phase\s+\d/i.test(continuePhase.phase.phase) ? continuePhase.phase.phase : `Phase ${continuePhase.index + 1}: ${continuePhase.phase.phase}`}
                     </p>
                   )}
                   {continueNext && (
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Next task: {continueNext.name}
+                    <p className="text-xs text-slate-500 mt-1">
+                      Next task: <span className="text-slate-400">{continueNext.name}</span>
                     </p>
                   )}
                 </div>
 
                 <Link
                   to={`/projects/${continueProject.id}`}
-                  className="flex-shrink-0 bg-gradient-to-r from-violet-600 to-sky-500 hover:from-violet-500 hover:to-sky-400 text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-violet-600/20 hover:shadow-violet-600/40 transition"
+                  className="flex-shrink-0 bg-gradient-to-r from-violet-500 to-sky-400 hover:from-violet-400 hover:to-sky-300 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-all duration-200"
                 >
                   Continue →
                 </Link>
@@ -317,7 +403,7 @@ export default function DashboardPage() {
         )}
 
         {sorted.length > 0 && (
-          <div className="divide-y divide-slate-100">
+          <div className="flex flex-col gap-4">
             {sorted.map((p, i) => <ProjectCard key={p.id} project={p} index={i} />)}
           </div>
         )}
