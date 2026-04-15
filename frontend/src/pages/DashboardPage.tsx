@@ -268,7 +268,7 @@ export default function DashboardPage() {
                   </h3>
                   {continuePhase && (
                     <p className="text-sm text-slate-600 font-medium">
-                      Phase {continuePhase.index + 1}: {continuePhase.phase.phase}
+                      {/^phase\s+\d/i.test(continuePhase.phase.phase) ? continuePhase.phase.phase : `Phase ${continuePhase.index + 1}: ${continuePhase.phase.phase}`}
                     </p>
                   )}
                   {continueNext && (
