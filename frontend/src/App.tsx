@@ -9,6 +9,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import DashboardPage from './pages/DashboardPage'
 import GeneratePage from './pages/GeneratePage'
+import ProfilePage from './pages/ProfilePage'
 import ProjectDetailPage from './pages/ProjectDetailPage'
 
 function GuestRoute({ children }: { children: React.ReactNode }) {
@@ -38,6 +39,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <GeneratePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
           </ProtectedRoute>
         }
       />

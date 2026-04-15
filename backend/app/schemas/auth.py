@@ -44,6 +44,12 @@ class MessageResponse(BaseModel):
     message: str
 
 
+class UpdateProfileRequest(BaseModel):
+    full_name: str | None = Field(default=None, min_length=1, max_length=255)
+    new_password: str | None = Field(default=None, min_length=6, max_length=128)
+    current_password: str | None = Field(default=None, min_length=6, max_length=128)
+
+
 class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

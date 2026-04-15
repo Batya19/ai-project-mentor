@@ -33,6 +33,8 @@ export const authApi = {
     api
       .get<{ id: string; email: string; created_at: string }>('/auth/me')
       .then((r) => r.data),
+  updateProfile: (data: { full_name?: string; new_password?: string; current_password?: string }) =>
+    api.put<{ id: string; email: string; full_name: string }>('/auth/profile', data).then((r) => r.data),
 }
 
 // ── Projects ─────────────────────────────────────────────────────────────────

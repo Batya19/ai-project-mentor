@@ -141,7 +141,7 @@ export default function DashboardPage() {
           <BrandLogo size="sm" theme="light" />
         </Link>
         <div className="flex items-center gap-4">
-          <span className="text-xs text-slate-500 hidden sm:block font-medium">Hi, {fullName || email}</span>
+          <Link to="/profile" className="text-xs text-slate-500 hidden sm:block font-medium hover:text-violet-600 transition">Hi, {fullName || email}</Link>
           <button onClick={() => { logout(); navigate("/login") }} className="text-xs text-slate-500 hover:text-slate-900 font-semibold transition">Log out</button>
         </div>
       </nav>

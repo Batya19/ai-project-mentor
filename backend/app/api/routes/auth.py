@@ -12,12 +12,13 @@ from app.schemas.auth import (
     ResendOTPRequest,
     ResetPasswordRequest,
     TokenResponse,
+    UpdateProfileRequest,
     UserResponse,
     VerifyOTPRequest,
 )
 from app.services.auth_service import login_user, register_user
 from app.services.email_service import create_and_send_otp, verify_otp
-from app.core.security import hash_password
+from app.core.security import hash_password, verify_password
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -84,4 +85,23 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse
 
 @router.get("/me", response_model=UserResponse)
 def me(current_user: User = Depends(get_current_user)) -> UserResponse:
+    return current_user
+
+
+@router.put("/profile", response_model=UserResponse)
+def update_profile(
+    payload: UpdateProfileRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> UserResponse:
+    if payload.new_password:
+        if not payload.current_password:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Current password is required")
+        if not verify_password(payload.current_password, current_user.password_hash):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Current password is incorrect")
+        current_user.password_hash = hash_password(payload.new_password)
+    if payload.full_name is not None:
+        current_user.full_name = payload.full_name
+    db.commit()
+    db.refresh(current_user)
     return current_user
