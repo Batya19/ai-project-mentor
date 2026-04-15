@@ -142,7 +142,7 @@ export default function DashboardPage() {
         </Link>
         <div className="flex items-center gap-4">
           <Link to="/profile" className="text-xs text-slate-500 hidden sm:block font-medium hover:text-violet-600 transition">Hi, {fullName || email}</Link>
-          <button onClick={() => { logout(); navigate("/login") }} className="text-xs text-slate-500 hover:text-slate-900 font-semibold transition">Log out</button>
+          <button onClick={() => { logout(); navigate("/login") }} className="text-xs text-rose-400 hover:text-rose-600 font-semibold transition">Log out</button>
         </div>
       </nav>
 

@@ -73,7 +73,7 @@ export default function ProfilePage() {
         </Link>
         <div className="flex items-center gap-4">
           <span className="text-xs text-slate-500 hidden sm:block font-medium">Hi, {fullName || email}</span>
-          <button onClick={() => { logout(); navigate("/login") }} className="text-xs text-slate-500 hover:text-slate-900 font-semibold transition">Log out</button>
+          <button onClick={() => { logout(); navigate("/login") }} className="text-xs text-rose-400 hover:text-rose-600 font-semibold transition">Log out</button>
         </div>
       </nav>
 
@@ -108,37 +108,32 @@ export default function ProfilePage() {
             />
           </div>
 
-          <div className="pt-4 border-t border-slate-200/60">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Change Password</p>
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="profile-current-password" className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Current Password</label>
-                <input
-                  id="profile-current-password"
-                  name="current-password"
-                  type="password"
-                  autoComplete="current-password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full bg-white/60 backdrop-blur-sm text-slate-900 border border-slate-200/70 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-transparent placeholder:text-slate-300 transition"
-                  placeholder="Enter current password"
-                />
-              </div>
-              <div>
-                <label htmlFor="profile-new-password" className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">New Password</label>
-                <input
-                  id="profile-new-password"
-                  name="new-password"
-                  type="password"
-                  autoComplete="new-password"
-                  minLength={6}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full bg-white/60 backdrop-blur-sm text-slate-900 border border-slate-200/70 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-transparent placeholder:text-slate-300 transition"
-                  placeholder="At least 6 characters"
-                />
-              </div>
-            </div>
+          <div>
+            <label htmlFor="profile-current-password" className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Current Password</label>
+            <input
+              id="profile-current-password"
+              name="current-password"
+              type="password"
+              autoComplete="current-password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="w-full bg-white/60 backdrop-blur-sm text-slate-900 border border-slate-200/70 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-transparent placeholder:text-slate-300 transition"
+              placeholder="Required to change password"
+            />
+          </div>
+          <div>
+            <label htmlFor="profile-new-password" className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">New Password</label>
+            <input
+              id="profile-new-password"
+              name="new-password"
+              type="password"
+              autoComplete="new-password"
+              minLength={6}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full bg-white/60 backdrop-blur-sm text-slate-900 border border-slate-200/70 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-transparent placeholder:text-slate-300 transition"
+              placeholder="At least 6 characters"
+            />
           </div>
 
           <button
