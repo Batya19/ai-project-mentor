@@ -190,8 +190,8 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-4 mt-3">
+        {/* Action */}
+        <div className="mt-3">
           {status !== "completed" ? (
             <Link
               to={`/projects/${project.id}`}
@@ -207,12 +207,6 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           ) : (
             <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">✓ Completed</span>
           )}
-          <Link
-            to={`/projects/${project.id}`}
-            className="text-xs font-semibold text-slate-400 hover:text-violet-500 transition"
-          >
-            View roadmap
-          </Link>
         </div>
       </div>
     </div>
