@@ -389,37 +389,6 @@ export default function ProjectDetailPage() {
           </div>
         </div>
 
-        <div className="mb-6 rounded-2xl bg-white/50 backdrop-blur-lg border border-white/60 px-5 py-4 shadow-lg shadow-violet-100/20">
-          <div className="flex items-start gap-3">
-            <div className={`mt-0.5 text-3xl transition-opacity ${coachLoading ? "opacity-60" : ""}`}>🚀</div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-500">
-                  {coachLoading ? "AI Coach" : aiCoachMessage ? "AI Coach" : "Real-Time Motivation"}
-                </p>
-                {coachLoading && (
-                  <div className="flex gap-1 items-center">
-                    {[0, 1, 2].map((i) => (
-                      <div
-                        key={i}
-                        className="w-1 h-1 rounded-full bg-violet-400 animate-bounce"
-                        style={{ animationDelay: `${i * 0.15}s` }}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-              {coachLoading ? (
-                <div className="h-4 bg-violet-100/60 rounded-full w-3/4 animate-pulse" />
-              ) : (
-                <p className="text-sm leading-relaxed text-slate-700 italic font-medium">
-                  "{aiCoachMessage || motivationMessage}"
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-
         {/* ── View toggle ── */}
         <div className="flex items-center gap-2 mb-5 bg-white/70 backdrop-blur border border-white/80 rounded-2xl p-1 w-fit shadow-sm shadow-violet-100/70">
           <button
