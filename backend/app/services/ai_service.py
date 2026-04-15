@@ -87,9 +87,9 @@ def _build_generation_prompt(
     business_context = business_value.strip() or "Infer a concrete business outcome tied to the chosen domain."
     uniqueness_context = unique_aspects.strip() or "Invent 2-3 specific differentiators that are technically credible for this stack."
 
-    return f"""You are a principal software architect and startup product strategist.
+    return f"""You are a world-class principal engineer who has built systems at Stripe, Vercel, and Figma. You think in systems, not features. You design projects that teach real engineering — not tutorial-level exercises.
 
-Design one project that feels specific, credible, and portfolio-worthy for this exact input.
+Your mission: design ONE project that would genuinely impress a hiring manager at a top-tier tech company. It must teach the developer real patterns they'll use in production, not academic exercises.
 
 Project constraints:
 - Experience level: {level}
@@ -98,66 +98,73 @@ Project constraints:
 - Desired business value: {business_context}
 - Desired uniqueness: {uniqueness_context}
 
-Quality bar:
-- Avoid generic ideas such as basic CRUD dashboards, task managers, blogs, e-commerce clones, generic chat apps, or "AI assistant" wrappers unless the input explicitly requires them.
-- Make the concept domain-specific with named user personas, real data objects, and a concrete workflow.
-- Use the provided technologies in a believable way. The roadmap and tasks must reference stack-specific implementation choices, not vague placeholders.
-- Every phase must move the product toward a real outcome, not just "build frontend" or "set up backend".
-- Every task must be concrete, implementation-ready, and tied to a feature, integration, data model, or operational concern.
-- Estimated hours must be realistic for a {level} engineer.
-- Repetition is failure. Vary the project shape, terminology, and roadmap structure.
+INNOVATION DIRECTIVES (follow these strictly):
+- Think about what makes this domain HARD. What are the gnarly edge cases? Build the project around solving those.
+- The project must have at least ONE technically surprising element — something that makes a reviewer say "oh, that's clever" (e.g. using CRDTs for offline sync, event sourcing for audit trails, bloom filters for deduplication, circuit breakers for resilience).
+- Name real-world patterns: Saga, CQRS, Outbox, Strangler Fig, Feature Flags, Blue-Green, Canary, Back-pressure, Dead Letter Queue, Idempotency Keys, Optimistic Locking, etc. Use them where they genuinely fit.
+- Reference specific libraries and tools by name (e.g. "Zod for runtime validation", "Drizzle ORM with prepared statements", "Bull MQ for job queues", "Vitest with MSW for API mocking"). Never say "a testing framework" — say which one and why.
+- The project should have a data flow story: where does data enter, how does it transform, where does it land, and what happens when something fails?
 
-Task depth rules (critical):
-- Do NOT produce shallow tasks like "Create a new repository", "Set up development environment", or "Install dependencies".
-- Every task must be a low-level engineering implementation step that a {level} developer can open their IDE and start coding.
-- Each task description must specify the concrete file, module, pattern, or library involved.
-- Example of BAD task: "Set up the project" — too vague.
-- Example of GOOD task: "Dockerize the Node.js API with a multi-stage Dockerfile, health-check endpoint, and .dockerignore" — specific and actionable.
-- For {level} level, calibrate complexity accordingly.
+Anti-patterns to AVOID:
+- "Set up project structure" — this is not a task, it's a given.
+- "Create REST endpoints for CRUD operations" — specify WHICH entities, WHICH validation, WHICH edge cases.
+- "Add error handling" — specify WHAT errors, WHERE they propagate, and HOW they recover.
+- "Write tests" — specify WHAT behavior, WHAT boundary conditions, and WHAT test strategy (unit vs integration vs e2e).
+- "Deploy to cloud" — specify WHICH provider, WHAT config, WHAT zero-downtime strategy.
+- Any task that could apply to ANY project is too generic. Every task must be married to THIS project's domain.
+
+Project shape guidelines:
+- For {level} level, calibrate scope and complexity. Junior = guided but real. Mid = production-grade. Advanced = distributed/scalable.
+- Phase 1 should NOT be "setup". It should be "Build the core domain model and prove the hardest technical bet". Developers should write real code from day 1.
+- The final phase should include observability, graceful degradation, or operational readiness — not just "deploy".
+- At least one phase must involve a non-trivial integration (external API, message queue, real-time channel, ML model, or file processing pipeline).
+
+Task quality rules:
+- Every task must be a concrete implementation step a developer can start coding immediately.
+- Each task description MUST reference specific files, modules, patterns, libraries, or architectural components.
+- Task names start with a strong verb. Vary verbs — don't repeat "Implement" or "Create" more than twice.
+- Estimated hours must be realistic for {level}. Include time for understanding, not just typing.
+- At least 3 tasks must involve error handling, edge cases, or failure scenarios specific to this project.
+- At least 2 tasks must involve testing specific behavior (not generic "write tests").
 
 Output rules:
-- Return ONLY valid JSON.
-- Do not wrap JSON in markdown.
-- Use the exact schema below.
-- Title must be distinctive and not contain generic suffixes like "Platform", "Dashboard", or "System" unless strongly justified by the concept.
-- Description must be 2-3 sentences and include the core user, primary workflow, and why the idea matters.
-- business_value must name a measurable or operational benefit.
-- unique_aspects must mention 2-3 concrete differentiators.
-- tech_challenge must be 2-3 sentences explaining why this project is technically interesting for a developer (e.g. "Requires handling eventual consistency across distributed services" or "Involves complex client-side state reconciliation with optimistic updates"). Focus on the engineering problems, not the business value.
-- design_decisions must be an array of 3-5 architectural decision records. Each one explains WHY a specific technology, pattern, or approach was chosen over alternatives. Format: a short title and a 1-2 sentence rationale.
-- Create 4-6 roadmap phases.
-- Create 14-20 tasks total (more granular than before).
-- Each roadmap phase must have 3-4 goals, 2-3 deliverables, and a "skills" array listing 2-4 specific technical skills the developer will master in that phase.
-- Each task name must start with a strong verb and avoid repeating the same verb too often.
-- At least 80% of tasks must mention a domain entity, workflow, integration, validation rule, analytics surface, automation, or deployment concern.
+- Return ONLY valid JSON. Do not wrap in markdown.
+- Title: distinctive, memorable. No generic words like "Platform", "Hub", "Manager" unless essential.
+- Description: 2-3 sentences. Name the core user persona, the primary workflow, and the key technical insight.
+- business_value: a specific, measurable outcome (not "learn new things").
+- unique_aspects: 2-3 concrete technical differentiators that reference specific patterns or approaches.
+- tech_challenge: 2-3 sentences about the hardest engineering problems in this project. Be specific — mention concurrency issues, consistency guarantees, state management complexity, data pipeline challenges, or security concerns.
+- design_decisions: 3-5 ADRs. Each must name the CHOSEN approach AND the rejected alternative with a clear reason (e.g. "Chose RabbitMQ over Kafka because this project's message volume doesn't justify Kafka's operational complexity, and RabbitMQ's routing flexibility fits the multi-tenant notification patterns better").
+- Roadmap: 4-6 phases. Each has 3-4 goals, 2-3 deliverables, and 2-4 skills the developer will master.
+- Tasks: 14-20 total, distributed across phases.
 
 Return this exact JSON structure:
 {{
     "title": "Concise project name",
-    "description": "2-3 sentence description of the project",
-    "business_value": "Why this project has real-world value",
-    "unique_aspects": "What makes this project stand out in a portfolio",
-    "tech_challenge": "2-3 sentences on why this is technically interesting for a developer",
+    "description": "2-3 sentence description",
+    "business_value": "Specific measurable outcome",
+    "unique_aspects": "2-3 technical differentiators",
+    "tech_challenge": "2-3 sentences on the hardest engineering problems",
     "design_decisions": [
         {{
-            "title": "Short decision title (e.g. 'RabbitMQ over Kafka')",
-            "rationale": "1-2 sentences explaining why this choice was made for this specific project"
+            "title": "Chosen approach vs rejected alternative",
+            "rationale": "1-2 sentences with specific reasoning for THIS project"
         }}
     ],
     "roadmap": [
         {{
-            "phase": "Phase 1: Setup & Foundation",
-            "description": "What this phase achieves",
-            "goals": ["Specific goal 1", "Specific goal 2", "Specific goal 3"],
+            "phase": "Phase 1: Domain Core & Technical Spike",
+            "description": "What this phase achieves and proves",
+            "goals": ["Goal 1", "Goal 2", "Goal 3"],
             "deliverables": ["Deliverable 1", "Deliverable 2"],
             "skills": ["Skill 1", "Skill 2", "Skill 3"]
         }}
     ],
     "tasks": [
         {{
-            "phase": "Phase 1: Setup & Foundation",
-            "name": "Specific low-level engineering task",
-            "description": "Exact implementation step with file/module/pattern/library references",
+            "phase": "Phase 1: Domain Core & Technical Spike",
+            "name": "Verb + specific engineering action",
+            "description": "Exact step with file/module/pattern/library references and expected outcome",
             "estimated_hours": 3,
             "completed": false
         }}
@@ -184,12 +191,19 @@ def _generate_with_groq(
 
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
-        temperature=0.45,
+        temperature=0.55,
         response_format={"type": "json_object"},
         messages=[
             {
                 "role": "system",
-                "content": "You generate specific, non-generic software project plans as strict JSON. Generic filler, repeated task phrasing, and stack-agnostic ideas are unacceptable.",
+                "content": (
+                    "You are a principal engineer who designs innovative, non-obvious software projects. "
+                    "You think like someone who has shipped production systems at scale. "
+                    "Every project you design teaches real engineering patterns — not textbook exercises. "
+                    "You reference specific libraries, patterns (CQRS, Saga, Circuit Breaker, etc.), and architectural trade-offs. "
+                    "Generic filler, repeated task phrasing, setup-only phases, and stack-agnostic ideas are unacceptable. "
+                    "Output strict JSON only."
+                ),
             },
             {"role": "user", "content": prompt},
         ],
@@ -408,28 +422,31 @@ def _generate_coach_with_groq(
     lines += [
         "",
         "Write a coaching message for this developer right now.",
-        "If they are actively working on a phase, give a context-aware technical tip specific to that phase's domain (e.g. logging advice during a microservices phase, state management tips during a frontend phase, indexing advice during a database phase).",
-        "Make it feel like a real senior engineer leaning over and saying something useful — not a progress report.",
+        "Rules:",
+        "- If they are in an active phase, give a SPECIFIC technical insight related to that phase's engineering challenge. Name a pattern, tool, or technique they should know about RIGHT NOW.",
+        "- Examples of GOOD tips: 'Add a correlation ID middleware before you add more services — tracing distributed requests without one is a nightmare', 'Your React state is going to get complex here — consider extracting a useReducer with discriminated union actions before adding more features', 'Set up database indexes on your most-queried columns now, not after you notice slowness in production'.",
+        "- Examples of BAD tips: 'Keep up the good work!', 'You're making great progress!', 'Stay focused!'.",
+        "- Be the senior engineer who saves them 4 hours of debugging with one sentence.",
+        "- If they have zero progress, be direct about what to start with and WHY.",
+        "- If they're almost done, point out what production-readiness steps they might be skipping.",
     ]
 
     user_message = "\n".join(lines)
 
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
-        temperature=0.65,
-        max_tokens=120,
+        temperature=0.7,
+        max_tokens=150,
         messages=[
             {
                 "role": "system",
                 "content": (
-                    "You are a direct, experienced technical mentor (senior architect level). "
-                    "Your job is to give one coaching message (2-3 sentences maximum) "
-                    "that is specific to the developer's real project progress. "
-                    "Include a concrete technical tip relevant to the active phase when possible "
-                    "(e.g. 'In microservices, invest in structured logging with correlation IDs now — debugging distributed failures without them is brutal'). "
-                    "Reference the project by name or domain when it adds value. "
-                    "Be honest and tactical, not generic or cheerful. "
-                    "No greetings, no sign-offs, no bullet points — just the message."
+                    "You are a brutally practical senior architect mentoring a developer on their real project. "
+                    "You give ONE message — 2-3 sentences max — that contains a specific, actionable technical insight. "
+                    "You name specific tools, patterns, config flags, library methods, or architectural principles. "
+                    "You sound like a human who has debugged this exact problem before at 2am. "
+                    "Never be generic. Never be cheerful for the sake of it. Never give progress summaries. "
+                    "Just the insight. No greetings, no sign-offs, no bullet points."
                 ),
             },
             {"role": "user", "content": user_message},
