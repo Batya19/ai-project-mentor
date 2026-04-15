@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-export const api = axios.create({ baseURL: '/api' })
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api'
+
+export const api = axios.create({ baseURL: apiBaseUrl })
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
@@ -92,4 +94,8 @@ export const projectsApi = {
   coach: (id: string, payload: CoachRequest) =>
     api.post<CoachResponse>(`/projects/${id}/coach`, payload).then((r) => r.data),
   delete: (id: string) => api.delete(`/projects/${id}`).then((r) => r.data),
+}
+
+export const statsApi = {
+  get: () => api.get<{ total_projects: number }>('/stats').then((r) => r.data),
 }

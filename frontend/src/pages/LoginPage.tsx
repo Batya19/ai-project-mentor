@@ -29,66 +29,63 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf9ff] flex items-center justify-center px-4 relative overflow-hidden text-slate-900">
-      <div className="glow-orb w-[30rem] h-[30rem] bg-violet-300/70 -top-24 -left-24" />
-      <div className="glow-orb w-[24rem] h-[24rem] bg-sky-300/65 bottom-0 -right-20" />
-      <div className="glow-orb w-[20rem] h-[20rem] bg-rose-300/45 top-1/2 right-1/4" />
+    <div className="min-h-screen bg-[#faf9ff] flex items-center justify-center px-4 py-16 relative overflow-hidden text-slate-900">
+      <div className="glow-orb w-[38rem] h-[38rem] bg-violet-300/55 -top-28 -left-28" />
+      <div className="glow-orb w-[30rem] h-[30rem] bg-sky-300/50 -bottom-20 -right-20" />
+      <div className="glow-orb w-[20rem] h-[20rem] bg-rose-200/30 top-1/2 right-1/3" />
 
-      <div className="relative z-10 w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2.5 mb-6 group">
+      <div className="relative z-10 w-full max-w-sm">
+        <div className="text-center mb-10">
+          <Link to="/" className="inline-flex items-center gap-2.5 mb-8">
             <BrandLogo size="md" theme="light" />
           </Link>
-          <h1 className="text-2xl font-extrabold text-slate-900 mb-1">Welcome back</h1>
-          <p className="text-slate-500 text-sm">Log in to continue building</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Welcome back</h1>
+          <p className="text-slate-400 text-sm">Pick up right where you left off</p>
         </div>
 
-        <div className="surface-glow rounded-3xl p-8 shadow-2xl shadow-violet-950/30">
-          {error && (
-            <div className="mb-5 text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded-2xl px-4 py-3">
-              {error}
-            </div>
-          )}
+        {error && (
+          <p className="mb-6 text-sm text-rose-500 text-center font-medium">{error}</p>
+        )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-slate-600 mb-1.5">Email</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-white/80 text-slate-900 border border-white/80 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/60 focus:border-transparent placeholder:text-slate-300 transition"
-                placeholder="you@example.com"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-slate-600 mb-1.5">Password</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-white/80 text-slate-900 border border-white/80 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/60 focus:border-transparent placeholder:text-slate-300 transition"
-                placeholder=""
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-violet-600 via-sky-500 to-emerald-500 hover:from-violet-500 hover:via-sky-400 hover:to-emerald-400 disabled:opacity-50 text-white font-bold rounded-2xl px-4 py-3 text-sm transition shadow-lg shadow-violet-600/30 mt-1"
-            >
-              {loading ? "Logging in" : "Log in →"}
-            </button>
-          </form>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Email</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-white/60 backdrop-blur-sm text-slate-900 border border-slate-200/70 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-transparent placeholder:text-slate-300 transition"
+              placeholder="you@example.com"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Password</label>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-white/60 backdrop-blur-sm text-slate-900 border border-slate-200/70 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-transparent placeholder:text-slate-300 transition"
+              placeholder="Your password"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-violet-600 via-sky-500 to-emerald-500 hover:from-violet-500 hover:via-sky-400 hover:to-emerald-400 disabled:opacity-50 text-white font-bold rounded-2xl px-4 py-4 text-sm transition-all shadow-lg shadow-violet-500/25 mt-2"
+            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.25)" }}
+          >
+            {loading ? "Logging in…" : "Log in →"}
+          </button>
+        </form>
 
-          <p className="mt-6 text-center text-sm text-slate-500">
-            No account?{" "}
-            <Link to="/register" className="text-violet-600 font-bold hover:text-violet-700 transition">
-              Sign up free
-            </Link>
-          </p>
-        </div>
+        <p className="mt-8 text-center text-sm text-slate-400">
+          No account yet?{" "}
+          <Link to="/register" className="text-violet-600 font-semibold hover:text-violet-700 transition">
+            Sign up free →
+          </Link>
+        </p>
       </div>
     </div>
   )

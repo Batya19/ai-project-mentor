@@ -51,3 +51,10 @@ body { margin: 0; background: #faf9ff; color: #241b3a; }
   opacity: 0.42;
   pointer-events: none;
 }
+
+.float-snippet-a,
+.float-snippet-b,
+.float-snippet-c {
+  transition: transform 0.45s ease, box-shadow 0.45s ease;
+  will-change: transform;
+}
