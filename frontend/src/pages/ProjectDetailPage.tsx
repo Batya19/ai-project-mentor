@@ -298,8 +298,18 @@ export default function ProjectDetailPage() {
       <main className="relative z-10 max-w-3xl mx-auto px-6 py-10">
         <div className="mb-6">
           <div className="flex items-start gap-3 mb-2 flex-wrap">
-            <h1 className="text-3xl font-extrabold text-slate-900 leading-tight">{project.title}</h1>
-            <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize border ${LEVEL_STYLE[project.level] ?? "bg-slate-100 text-slate-600 border-slate-200"}`}>
+            <h1
+              className="text-4xl sm:text-5xl font-extrabold leading-tight"
+              style={{
+                background: "linear-gradient(135deg, #1e1b4b 0%, #7c3aed 40%, #0ea5e9 70%, #10b981 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              {project.title}
+            </h1>
+            <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize border mt-2 ${LEVEL_STYLE[project.level] ?? "bg-slate-100 text-slate-600 border-slate-200"}`}>
               {project.level}
             </span>
           </div>
