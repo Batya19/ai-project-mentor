@@ -27,7 +27,7 @@ export const authApi = {
     api.post<{ message: string }>('/auth/reset-password', { email, code, new_password }).then((r) => r.data),
   login: (email: string, password: string) =>
     api
-      .post<{ access_token: string }>('/auth/login', { email, password })
+      .post<{ access_token: string; full_name: string }>('/auth/login', { email, password })
       .then((r) => r.data),
   me: () =>
     api

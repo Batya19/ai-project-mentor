@@ -49,9 +49,12 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Full Name</label>
+            <label htmlFor="register-name" className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Full Name</label>
             <input
+              id="register-name"
+              name="name"
               type="text"
+              autoComplete="name"
               required
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
@@ -60,9 +63,12 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Email</label>
+            <label htmlFor="register-email" className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Email</label>
             <input
+              id="register-email"
+              name="email"
               type="email"
+              autoComplete="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -71,9 +77,12 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Password</label>
+            <label htmlFor="register-password" className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Password</label>
             <input
+              id="register-password"
+              name="password"
               type="password"
+              autoComplete="new-password"
               required
               minLength={6}
               value={password}

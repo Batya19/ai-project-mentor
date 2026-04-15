@@ -62,10 +62,13 @@ export default function ResetPasswordPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Reset Code</label>
+            <label htmlFor="reset-code" className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Reset Code</label>
             <input
+              id="reset-code"
+              name="code"
               type="text"
               inputMode="numeric"
+              autoComplete="one-time-code"
               required
               maxLength={6}
               value={code}
@@ -75,9 +78,12 @@ export default function ResetPasswordPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">New Password</label>
+            <label htmlFor="reset-password" className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">New Password</label>
             <input
+              id="reset-password"
+              name="new-password"
               type="password"
+              autoComplete="new-password"
               required
               minLength={6}
               value={newPassword}

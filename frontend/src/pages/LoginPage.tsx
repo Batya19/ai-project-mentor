@@ -23,7 +23,7 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const data = await authApi.login(email, password)
-      setAuth(data.access_token, email)
+      setAuth(data.access_token, email, data.full_name || '')
       navigate("/dashboard")
     } catch {
       setError("Invalid email or password.")
@@ -59,9 +59,12 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Email</label>
+            <label htmlFor="login-email" className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Email</label>
             <input
+              id="login-email"
+              name="email"
               type="email"
+              autoComplete="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -70,9 +73,12 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Password</label>
+            <label htmlFor="login-password" className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Password</label>
             <input
+              id="login-password"
+              name="password"
               type="password"
+              autoComplete="current-password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}

@@ -67,10 +67,13 @@ export default function VerifyPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Verification Code</label>
+            <label htmlFor="verify-code" className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Verification Code</label>
             <input
+              id="verify-code"
+              name="code"
               type="text"
               inputMode="numeric"
+              autoComplete="one-time-code"
               required
               maxLength={6}
               value={code}

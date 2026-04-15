@@ -122,6 +122,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 
 export default function DashboardPage() {
   const email = useAuthStore((s) => s.email)
+  const fullName = useAuthStore((s) => s.fullName)
   const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
 
@@ -140,7 +141,7 @@ export default function DashboardPage() {
           <BrandLogo size="sm" theme="light" />
         </Link>
         <div className="flex items-center gap-4">
-          <span className="text-xs text-slate-400 hidden sm:block">{email}</span>
+          <span className="text-xs text-slate-500 hidden sm:block font-medium">Hi, {fullName || email}</span>
           <button onClick={() => { logout(); navigate("/login") }} className="text-xs text-slate-500 hover:text-slate-900 font-semibold transition">Log out</button>
         </div>
       </nav>

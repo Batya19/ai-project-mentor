@@ -35,4 +35,4 @@ def login_user(db: Session, email: str, password: str) -> TokenResponse:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     access_token = create_access_token(subject=user.id)
-    return TokenResponse(access_token=access_token)
+    return TokenResponse(access_token=access_token, full_name=user.full_name or "")
