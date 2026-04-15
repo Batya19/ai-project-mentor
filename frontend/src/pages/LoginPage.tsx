@@ -25,13 +25,8 @@ export default function LoginPage() {
       const data = await authApi.login(email, password)
       setAuth(data.access_token, email)
       navigate("/dashboard")
-    } catch (err: unknown) {
-      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
-      if (detail?.includes("not verified")) {
-        navigate(`/verify?email=${encodeURIComponent(email)}`)
-      } else {
-        setError("Invalid email or password.")
-      }
+    } catch {
+      setError("Invalid email or password.")
     } finally {
       setLoading(false)
     }

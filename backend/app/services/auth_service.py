@@ -29,13 +29,10 @@ def register_user(db: Session, email: str, password: str, full_name: str, level:
 
 
 def login_user(db: Session, email: str, password: str) -> TokenResponse:
-    """Authenticate user and return access token. User must be verified."""
+    """Authenticate user and return access token."""
     user = db.query(User).filter(User.email == email).first()
     if user is None or not verify_password(password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-
-    if not user.is_verified:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Email not verified. Please check your inbox.")
 
     access_token = create_access_token(subject=user.id)
     return TokenResponse(access_token=access_token)
