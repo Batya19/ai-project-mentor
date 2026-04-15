@@ -36,8 +36,8 @@ const TECH_ICONS: Record<string, { icon: string; bg: string; fg: string }> = {
   javascript:  { icon: "JS", bg: "bg-yellow-100",  fg: "text-yellow-700" },
   python:      { icon: "🐍", bg: "bg-emerald-100", fg: "text-emerald-700" },
   java:        { icon: "☕", bg: "bg-orange-100",  fg: "text-orange-700" },
-  "c#":        { icon: "#",  bg: "bg-violet-100",  fg: "text-violet-700" },
-  csharp:      { icon: "#",  bg: "bg-violet-100",  fg: "text-violet-700" },
+  "c#":        { icon: "", bg: "bg-violet-100",  fg: "text-violet-700" },
+  csharp:      { icon: "", bg: "bg-violet-100",  fg: "text-violet-700" },
   "c++":       { icon: "C+", bg: "bg-blue-100",    fg: "text-blue-700" },
   c:           { icon: "C",  bg: "bg-slate-100",   fg: "text-slate-700" },
   go:          { icon: "Go", bg: "bg-cyan-100",    fg: "text-cyan-700" },
@@ -249,7 +249,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
                   const s = getTechStyle(tech)
                   return (
                     <span key={tech} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold ${s.bg} ${s.fg}`}>
-                      <span className="text-[10px] leading-none">{s.icon}</span>
+                      {s.icon && <span className="text-[10px] leading-none">{s.icon}</span>}
                       {tech}
                     </span>
                   )
