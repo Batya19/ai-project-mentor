@@ -3,14 +3,13 @@ import type { FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import BrandLogo from "../components/BrandLogo"
 import { authApi } from "../lib/api"
-import { useAuthStore } from "../store/authStore"
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [fullName, setFullName] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const setAuth = useAuthStore((s) => s.setAuth)
   const navigate = useNavigate()
 
   async function handleSubmit(e: FormEvent) {
@@ -18,10 +17,8 @@ export default function RegisterPage() {
     setError("")
     setLoading(true)
     try {
-      await authApi.register(email, password)
-      const data = await authApi.login(email, password)
-      setAuth(data.access_token, email)
-      navigate("/dashboard")
+      await authApi.register(email, password, fullName)
+      navigate(`/verify?email=${encodeURIComponent(email)}`)
     } catch (err: unknown) {
       const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
       const msg = typeof detail === "string" ? detail : Array.isArray(detail) ? detail.map((d: { msg?: string }) => d.msg).join("; ") : null
@@ -51,6 +48,17 @@ export default function RegisterPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Full Name</label>
+            <input
+              type="text"
+              required
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="w-full bg-white/60 backdrop-blur-sm text-slate-900 border border-slate-200/70 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-transparent placeholder:text-slate-300 transition"
+              placeholder="Your full name"
+            />
+          </div>
           <div>
             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Email</label>
             <input

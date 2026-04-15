@@ -1,12 +1,15 @@
 ﻿import { useState } from "react"
 import type { FormEvent } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import BrandLogo from "../components/BrandLogo"
 import { authApi } from "../lib/api"
 import { useAuthStore } from "../store/authStore"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
+  const [searchParams] = useSearchParams()
+  const justVerified = searchParams.get("verified") === "1"
+  const emailParam = searchParams.get("email") ?? ""
+  const [email, setEmail] = useState(emailParam)
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
@@ -21,8 +24,13 @@ export default function LoginPage() {
       const data = await authApi.login(email, password)
       setAuth(data.access_token, email)
       navigate("/dashboard")
-    } catch {
-      setError("Invalid email or password.")
+    } catch (err: unknown) {
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+      if (detail?.includes("not verified")) {
+        setError("Email not verified. Check your inbox or resend the code.")
+      } else {
+        setError("Invalid email or password.")
+      }
     } finally {
       setLoading(false)
     }
@@ -43,6 +51,9 @@ export default function LoginPage() {
           <p className="text-slate-400 text-sm">Pick up right where you left off</p>
         </div>
 
+        {justVerified && (
+          <p className="mb-6 text-sm text-emerald-500 text-center font-medium">Email verified! Log in to continue.</p>
+        )}
         {error && (
           <p className="mb-6 text-sm text-rose-500 text-center font-medium">{error}</p>
         )}

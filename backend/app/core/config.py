@@ -18,6 +18,14 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     cors_origins: Annotated[list[str], NoDecode]
 
+    # SMTP email settings
+    smtp_host: str = "localhost"
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from_email: str = ""
+    smtp_use_tls: bool = True
+
     model_config = SettingsConfigDict(env_file=".env", env_prefix="", extra="ignore")
 
     @field_validator("cors_origins", mode="before")

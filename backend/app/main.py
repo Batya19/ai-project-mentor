@@ -8,7 +8,7 @@ from app.core.config import settings
 from app.db.base import Base
 from app.db.session import engine
 from app.models.project import Project
-from app.models.user import User
+from app.models.user import User, OTPCode
 
 
 def create_app() -> FastAPI:
@@ -26,6 +26,7 @@ def create_app() -> FastAPI:
     # Import models and create tables during early development.
     User
     Project
+    OTPCode
     Base.metadata.create_all(bind=engine)
 
     app.include_router(health_router)

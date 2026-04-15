@@ -1,4 +1,5 @@
-﻿import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+﻿import { useState, useEffect, useRef } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { Link, useNavigate } from "react-router-dom"
 import { projectsApi } from "../lib/api"
 import type { Project } from "../lib/api"
@@ -6,71 +7,114 @@ import BrandLogo from "../components/BrandLogo"
 import { useAuthStore } from "../store/authStore"
 
 const LEVEL_STYLE: Record<string, string> = {
-  junior: "bg-emerald-100 text-emerald-700 border border-emerald-200",
-  mid: "bg-amber-100 text-amber-700 border border-amber-200",
-  advanced: "bg-rose-100 text-rose-700 border border-rose-200",
+  junior: "text-emerald-500",
+  mid: "text-amber-500",
+  advanced: "text-rose-500",
 }
 
-const CARD_GRADIENTS = [
-  "from-violet-100 via-violet-50 to-white border-violet-200",
-  "from-sky-100 via-sky-50 to-white border-sky-200",
-  "from-rose-100 via-rose-50 to-white border-rose-200",
-  "from-amber-100 via-amber-50 to-white border-amber-200",
-  "from-emerald-100 via-emerald-50 to-white border-emerald-200",
+const ACCENT_GRADIENTS = [
+  "from-violet-500 to-sky-500",
+  "from-sky-500 to-emerald-500",
+  "from-rose-500 to-amber-500",
+  "from-amber-500 to-violet-500",
+  "from-emerald-500 to-sky-500",
 ]
 
 function ProjectCard({ project, index }: { project: Project; index: number }) {
-  const queryClient = useQueryClient()
-  const deleteMutation = useMutation({
-    mutationFn: () => projectsApi.delete(project.id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects"] }),
-  })
   const totalTasks = project.tasks?.length ?? 0
   const doneTasks = project.tasks?.filter((t) => t.completed).length ?? 0
   const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0
-  const gradClass = CARD_GRADIENTS[index % CARD_GRADIENTS.length]
+  const accent = ACCENT_GRADIENTS[index % ACCENT_GRADIENTS.length]
+  const createdDate = new Date(project.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+  const phaseCount = project.roadmap?.length ?? 0
+
+  const rowRef = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const el = rowRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect() } },
+      { threshold: 0.25 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   return (
-    <div className={`card-lift bg-gradient-to-br ${gradClass} backdrop-blur-xl border rounded-3xl p-5 flex flex-col gap-4 shadow-xl shadow-violet-100/70`}>
-      <div className="flex items-start justify-between gap-2">
-        <Link to={`/projects/${project.id}`} className="text-slate-900 font-bold text-sm leading-snug line-clamp-2 hover:text-violet-600 transition">
-          {project.title}
+    <div ref={rowRef} className="group relative py-5">
+      {/* Accent line — grows in on scroll */}
+      <div
+        className={`absolute left-0 top-5 bottom-5 w-[3px] rounded-full bg-gradient-to-b ${accent} group-hover:opacity-100 transition-all duration-[1400ms] ease-out`}
+        style={{
+          opacity: visible ? 0.6 : 0,
+          transform: visible ? 'scaleY(1)' : 'scaleY(0)',
+          transformOrigin: 'top',
+        }}
+      />
+
+      <div className="pl-6">
+        {/* Top row: number + level + domain + phases + date + delete */}
+        <div className="flex items-center gap-2.5 mb-2">
+          <span className="text-[11px] font-bold tracking-[0.24em] text-slate-400">{String(index + 1).padStart(2, "0")}</span>
+          <span className={`text-[11px] font-bold uppercase tracking-[0.2em] ${LEVEL_STYLE[project.level] ?? "text-slate-500"}`}>
+            {project.level}
+          </span>
+          {project.domain && (
+            <span className="text-[11px] text-slate-500 font-medium">· {project.domain}</span>
+          )}
+          {phaseCount > 0 && (
+            <span className="text-[11px] text-slate-500">{phaseCount} phases</span>
+          )}
+          <span className="text-[11px] text-slate-400 ml-auto">{createdDate}</span>
+        </div>
+
+        {/* Title */}
+        <Link to={`/projects/${project.id}`} className="block mb-1.5 group/title">
+          <h3 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 group-hover/title:text-violet-600 transition leading-snug">
+            {project.title}
+          </h3>
         </Link>
-        <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full shrink-0 capitalize ${LEVEL_STYLE[project.level] ?? "bg-slate-100 text-slate-600 border border-slate-200"}`}>
-          {project.level}
-        </span>
-      </div>
 
-      <p className="text-slate-500 text-xs leading-relaxed line-clamp-2">{project.description}</p>
+        {/* Description */}
+        <p className="text-slate-500 text-sm leading-relaxed max-w-xl mb-3 line-clamp-2">{project.description}</p>
 
-      {project.technologies?.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {project.technologies.slice(0, 4).map((tech) => (
-            <span key={tech} className="text-xs bg-white/80 text-slate-600 border border-white/80 px-2 py-0.5 rounded-full shadow-sm">
-              {tech}
-            </span>
-          ))}
-          {project.technologies.length > 4 && <span className="text-xs text-slate-400">+{project.technologies.length - 4}</span>}
+        {/* Tech + progress row */}
+        <div className="flex items-center gap-3 flex-wrap">
+          {project.technologies?.length > 0 && (
+            <div className="flex items-center gap-1.5">
+              {project.technologies.slice(0, 3).map((tech) => (
+                <span key={tech} className="text-[11px] font-semibold text-slate-500 tracking-wide">
+                  {tech}
+                </span>
+              ))}
+              {project.technologies.length > 3 && (
+                <span className="text-[11px] text-slate-400">+{project.technologies.length - 3}</span>
+              )}
+            </div>
+          )}
+
+          <div className="flex items-center gap-2.5 ml-auto">
+            <span className="text-[11px] text-slate-500 font-medium">{doneTasks}/{totalTasks}</span>
+            <div className="w-20 bg-slate-200 rounded-full h-1.5">
+              <div
+                className={`bg-gradient-to-r ${accent} h-1.5 rounded-full transition-all`}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <span className="text-[11px] font-bold text-slate-600">{progress}%</span>
+          </div>
         </div>
-      )}
 
-      <div>
-        <div className="flex justify-between text-xs mb-1.5">
-          <span className="text-slate-400">{doneTasks}/{totalTasks} tasks</span>
-          <span className="font-bold text-violet-600">{progress}%</span>
-        </div>
-        <div className="w-full bg-white/70 rounded-full h-1.5">
-          <div className="bg-gradient-to-r from-violet-500 via-sky-400 to-emerald-400 h-1.5 rounded-full transition-all shadow-[0_0_14px_rgba(56,189,248,0.45)]" style={{ width: `${progress}%` }} />
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2 pt-1 border-t border-white/60">
-        <Link to={`/projects/${project.id}`} className="flex-1 text-center text-xs bg-white/80 hover:bg-white text-slate-900 font-bold rounded-2xl py-2 transition shadow-sm border border-white/80">
-          View roadmap →
+        {/* View link */}
+        <Link
+          to={`/projects/${project.id}`}
+          className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-violet-500 hover:text-violet-700 transition-all duration-200 group-hover:translate-x-1 group-hover:tracking-wide"
+        >
+          View roadmap
+          <span className="transition-transform group-hover:translate-x-0.5">→</span>
         </Link>
-        <button onClick={() => deleteMutation.mutate()} disabled={deleteMutation.isPending} className="text-slate-300 hover:text-rose-400 transition disabled:opacity-40 text-sm px-2" title="Delete">
-          ×
-        </button>
       </div>
     </div>
   )
@@ -129,7 +173,7 @@ export default function DashboardPage() {
         )}
 
         {projects && projects.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="divide-y divide-slate-100">
             {projects.map((p, i) => <ProjectCard key={p.id} project={p} index={i} />)}
           </div>
         )}

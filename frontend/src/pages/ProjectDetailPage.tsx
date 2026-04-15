@@ -204,6 +204,15 @@ export default function ProjectDetailPage() {
 
   const [aiCoachMessage, setAiCoachMessage] = useState<string | null>(null)
   const [coachLoading, setCoachLoading] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  const deleteMutation = useMutation({
+    mutationFn: () => projectsApi.delete(id!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] })
+      navigate("/dashboard")
+    },
+  })
 
   function fetchCoachMessage(updated: Project) {
     const totalT = updated.tasks.length
@@ -395,6 +404,34 @@ export default function ProjectDetailPage() {
             )}
           </>
         )}
+        {/* ── Danger zone ── */}
+        <div className="mt-16 pt-8 border-t border-slate-100">
+          {!confirmDelete ? (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="text-xs text-slate-400 hover:text-rose-500 font-medium transition"
+            >
+              Delete this project
+            </button>
+          ) : (
+            <div className="flex items-center gap-4">
+              <p className="text-sm text-rose-500 font-semibold">Delete "{project.title}" permanently?</p>
+              <button
+                onClick={() => deleteMutation.mutate()}
+                disabled={deleteMutation.isPending}
+                className="text-xs font-bold text-white bg-rose-500 hover:bg-rose-600 disabled:opacity-50 px-4 py-2 rounded-xl transition"
+              >
+                {deleteMutation.isPending ? "Deleting…" : "Yes, delete"}
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="text-xs font-semibold text-slate-400 hover:text-slate-600 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   )

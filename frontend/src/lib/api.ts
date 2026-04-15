@@ -5,15 +5,22 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api'
 export const api = axios.create({ baseURL: apiBaseUrl })
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
+  try {
+    const stored = JSON.parse(localStorage.getItem('auth') || '{}')
+    const token = stored?.state?.token ?? null
+    if (token) config.headers.Authorization = `Bearer ${token}`
+  } catch { /* ignore */ }
   return config
 })
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 export const authApi = {
-  register: (email: string, password: string) =>
-    api.post('/auth/register', { email, password }).then((r) => r.data),
+  register: (email: string, password: string, full_name: string) =>
+    api.post('/auth/register', { email, password, full_name }).then((r) => r.data),
+  verifyOtp: (email: string, code: string) =>
+    api.post<{ message: string }>('/auth/verify-otp', { email, code }).then((r) => r.data),
+  resendOtp: (email: string) =>
+    api.post<{ message: string }>('/auth/resend-otp', { email }).then((r) => r.data),
   login: (email: string, password: string) =>
     api
       .post<{ access_token: string }>('/auth/login', { email, password })

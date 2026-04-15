@@ -4,6 +4,7 @@ import { useAuthStore } from './store/authStore'
 import WelcomePage from './pages/WelcomePage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import VerifyPage from './pages/VerifyPage'
 import DashboardPage from './pages/DashboardPage'
 import GeneratePage from './pages/GeneratePage'
 import ProjectDetailPage from './pages/ProjectDetailPage'
@@ -19,6 +20,7 @@ export default function App() {
       <Route path="/" element={<WelcomePage />} />
       <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
       <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
+      <Route path="/verify" element={<VerifyPage />} />
       <Route
         path="/dashboard"
         element={
