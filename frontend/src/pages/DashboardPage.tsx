@@ -291,9 +291,6 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
       </div>
     </div>
   )
-      </div>
-    </div>
-  )
 }
 
 /* ── DashboardPage ───────────────────────────────────────────────────────── */
