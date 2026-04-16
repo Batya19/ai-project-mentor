@@ -147,10 +147,10 @@ const NODE_OFFSETS: Array<{ side: "left" | "right"; pad: string }> = [
   { side: "left",  pad: "pr-4 sm:pr-8 lg:pr-14" },
 ]
 
-function PhaseAccordion({ index, phaseName, description, tasks, onToggle, state, side, skills }: {
+function PhaseAccordion({ index, phaseName, description, tasks, onToggle, state, side, skills, pitfall, tools }: {
   index: number; phaseName: string; description: string; tasks: Task[];
   onToggle: (id: string, v: boolean) => void; state: "done" | "active" | "locked";
-  side: "left" | "right"; skills: string[]
+  side: "left" | "right"; skills: string[]; pitfall: string; tools: string[]
 }) {
   const [open, setOpen] = useState(state === "active")
   const done = tasks.filter((t) => t.completed).length
@@ -212,6 +212,22 @@ function PhaseAccordion({ index, phaseName, description, tasks, onToggle, state,
                 {skills.map((s) => (
                   <span key={s} className="text-[11px] bg-sky-50 text-sky-700 border border-sky-200 px-2 py-0.5 rounded-full font-medium">{s}</span>
                 ))}
+              </div>
+            )}
+            {pitfall && (
+              <div className="mt-2 mb-3 rounded-xl bg-rose-50/80 border border-rose-200/60 px-3.5 py-2.5">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-rose-500 mb-1">⚠ The Trap</p>
+                <p className="text-xs text-rose-700 leading-relaxed">{pitfall}</p>
+              </div>
+            )}
+            {tools.length > 0 && (
+              <div className="mt-2 mb-3 rounded-xl bg-indigo-50/70 border border-indigo-200/50 px-3.5 py-2.5">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-500 mb-1.5">🛠 Dev Tools</p>
+                <div className="space-y-1">
+                  {tools.map((t, i) => (
+                    <p key={i} className="text-xs text-indigo-700 leading-relaxed">• {t}</p>
+                  ))}
+                </div>
               </div>
             )}
             {tasks.length > 0
@@ -501,6 +517,8 @@ export default function ProjectDetailPage() {
                         state={state}
                         side={layout.side}
                         skills={phase.skills ?? []}
+                        pitfall={phase.pitfall ?? ""}
+                        tools={phase.tools ?? []}
                       />
                     </div>
                     {/* ── Curved abstract connector ── */}

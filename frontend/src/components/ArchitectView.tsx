@@ -1,5 +1,28 @@
+import { useEffect, useRef, useState } from "react"
+import mermaid from "mermaid"
 import type { Project } from "../lib/api"
 
+mermaid.initialize({
+  startOnLoad: false,
+  theme: "base",
+  themeVariables: {
+    primaryColor: "#ede9fe",
+    primaryTextColor: "#1e1b4b",
+    primaryBorderColor: "#a78bfa",
+    lineColor: "#94a3b8",
+    secondaryColor: "#f0f9ff",
+    tertiaryColor: "#ecfdf5",
+    fontFamily: "Plus Jakarta Sans, system-ui, sans-serif",
+    fontSize: "13px",
+  },
+  flowchart: {
+    htmlLabels: true,
+    curve: "basis",
+    padding: 16,
+  },
+})
+
+/* ── Static fallback (for projects without mermaid_diagram) ── */
 const VW = 760, VH = 310
 
 const NODES = [
@@ -10,7 +33,6 @@ const NODES = [
   { id: "postgres", cx: 652, cy: 235, hw: 68, hh: 30, label: "PostgreSQL",   sub: "Database",       color: "#34d399" },
 ]
 
-// paths connect box edges, not centres
 const EDGES = [
   { d: "M 122,155 L 175,155",                       color: "#38bdf8", label: "HTTP · fetch",   lx: 148, ly: 144, dur: "1.6s" },
   { d: "M 307,155 L 372,155",                       color: "#a78bfa", label: "axios · JWT",    lx: 339, ly: 144, dur: "1.9s" },
@@ -21,8 +43,102 @@ const EDGES = [
 function glowId(c: string) { return `gw${c.replace("#", "")}` }
 function arrId(c: string)  { return `ar${c.replace("#", "")}` }
 
+function StaticDiagram() {
+  const uniqueColors = [...new Set([...EDGES.map(e => e.color), ...NODES.map(n => n.color)])]
+  return (
+    <svg viewBox={`0 0 ${VW} ${VH}`} className="w-full" style={{ maxHeight: 320 }}>
+      <defs>
+        {uniqueColors.map(c => (
+          <filter key={c} id={glowId(c)} x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b" />
+            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+        ))}
+        {EDGES.map(e => (
+          <marker key={e.color} id={arrId(e.color)} markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill={e.color} />
+          </marker>
+        ))}
+        <pattern id="dots" width="36" height="36" patternUnits="userSpaceOnUse">
+          <circle cx="18" cy="18" r="1" fill="rgba(255,255,255,0.055)" />
+        </pattern>
+      </defs>
+      <rect width={VW} height={VH} fill="url(#dots)" />
+      {EDGES.map((e, i) => (
+        <g key={i}>
+          <path d={e.d} stroke={e.color} strokeWidth="1.5" fill="none" opacity="0.18" />
+          <path d={e.d} stroke={e.color} strokeWidth="2.5" fill="none"
+            strokeDasharray="7 18" filter={`url(#${glowId(e.color)})`}
+            markerEnd={`url(#${arrId(e.color)})`}>
+            <animate attributeName="stroke-dashoffset" from="25" to="0" dur={e.dur} repeatCount="indefinite" />
+          </path>
+          <text x={e.lx} y={e.ly} textAnchor="middle" fontSize="10"
+            fontFamily="ui-monospace, monospace" fontWeight="600"
+            stroke="#ffffff" strokeWidth="3.5" paintOrder="stroke" fill={e.color} opacity="0.9">
+            {e.label}
+          </text>
+        </g>
+      ))}
+      {NODES.map(n => (
+        <g key={n.id}>
+          <rect x={n.cx - n.hw - 10} y={n.cy - n.hh - 10}
+            width={(n.hw + 10) * 2} height={(n.hh + 10) * 2}
+            rx="18" fill={n.color} opacity="0.1" filter={`url(#${glowId(n.color)})`}>
+            <animate attributeName="opacity" values="0.07;0.22;0.07" dur="2.8s" repeatCount="indefinite" />
+          </rect>
+          <rect x={n.cx - n.hw} y={n.cy - n.hh} width={n.hw * 2} height={n.hh * 2}
+            rx="10" fill="rgba(255,255,255,0.88)" stroke={n.color} strokeWidth="1.6" />
+          <text x={n.cx} y={n.cy - 3} textAnchor="middle" fontSize="12.5"
+            fontFamily="system-ui,sans-serif" fontWeight="700"
+            fill={n.color} filter={`url(#${glowId(n.color)})`}>{n.label}</text>
+          <text x={n.cx} y={n.cy + 13} textAnchor="middle" fontSize="9.5"
+            fontFamily="ui-monospace,monospace" fill="rgba(71,85,105,0.72)">{n.sub}</text>
+        </g>
+      ))}
+    </svg>
+  )
+}
+
+/* ── Mermaid-powered diagram ── */
+function MermaidDiagram({ code, projectId }: { code: string; projectId: string }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    const id = `mermaid-${projectId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 12)}`
+
+    async function render() {
+      try {
+        const { svg } = await mermaid.render(id, code)
+        if (!cancelled && containerRef.current) {
+          containerRef.current.innerHTML = svg
+          // Style the rendered SVG
+          const svgEl = containerRef.current.querySelector("svg")
+          if (svgEl) {
+            svgEl.style.maxWidth = "100%"
+            svgEl.style.height = "auto"
+            svgEl.style.maxHeight = "400px"
+          }
+        }
+      } catch {
+        if (!cancelled) setError(true)
+      }
+    }
+
+    render()
+    return () => { cancelled = true }
+  }, [code, projectId])
+
+  if (error) return <StaticDiagram />
+
+  return <div ref={containerRef} className="flex justify-center py-2" />
+}
+
+/* ── Main component ── */
 export default function ArchitectView({ project }: { project: Project }) {
   const totalHours = project.tasks.reduce((s, t) => s + (t.estimated_hours ?? 0), 0)
+  const hasMermaid = !!project.mermaid_diagram?.trim()
 
   const steps = [
     { icon: "01", title: "Parsed request",      sub: `${project.level} · ${project.technologies.slice(0, 2).join(", ")}` },
@@ -31,108 +147,22 @@ export default function ArchitectView({ project }: { project: Project }) {
     { icon: "04", title: "Estimated timeline",  sub: `${project.tasks.length} tasks · ~${totalHours}h` },
   ]
 
-  const uniqueColors = [...new Set([...EDGES.map(e => e.color), ...NODES.map(n => n.color)])]
-
   return (
     <div className="space-y-4">
-
       {/* ── Diagram ── */}
       <div className="relative">
-        {/* outer glow aura */}
         <div className="absolute -inset-3 bg-gradient-to-br from-violet-300/45 via-sky-300/28 to-emerald-300/38 blur-2xl rounded-3xl pointer-events-none" />
-
         <div className="relative bg-white/72 border border-white/80 rounded-2xl overflow-hidden shadow-xl shadow-violet-100/70">
-          {/* title bar */}
           <div className="flex items-center gap-2 px-5 pt-3 pb-2.5 border-b border-white/70 font-mono text-[11px] text-slate-400">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             architecture · data-flow · {project.title}
           </div>
-
           <div className="px-3 py-3">
-            <svg viewBox={`0 0 ${VW} ${VH}`} className="w-full" style={{ maxHeight: 320 }}>
-              <defs>
-                {/* per-colour SVG glow */}
-                {uniqueColors.map(c => (
-                  <filter key={c} id={glowId(c)} x="-80%" y="-80%" width="260%" height="260%">
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b" />
-                    <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-                  </filter>
-                ))}
-
-                {/* per-colour arrowheads */}
-                {EDGES.map(e => (
-                  <marker key={e.color} id={arrId(e.color)}
-                    markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-                    <polygon points="0 0, 8 3, 0 6" fill={e.color} />
-                  </marker>
-                ))}
-
-                {/* subtle dot grid */}
-                <pattern id="dots" width="36" height="36" patternUnits="userSpaceOnUse">
-                  <circle cx="18" cy="18" r="1" fill="rgba(255,255,255,0.055)" />
-                </pattern>
-              </defs>
-
-              {/* grid bg */}
-              <rect width={VW} height={VH} fill="url(#dots)" />
-
-              {/* ── EDGES ── */}
-              {EDGES.map((e, i) => (
-                <g key={i}>
-                  {/* faint track */}
-                  <path d={e.d} stroke={e.color} strokeWidth="1.5" fill="none" opacity="0.18" />
-                  {/* animated glow dots */}
-                  <path d={e.d} stroke={e.color} strokeWidth="2.5" fill="none"
-                    strokeDasharray="7 18"
-                    filter={`url(#${glowId(e.color)})`}
-                    markerEnd={`url(#${arrId(e.color)})`}>
-                    <animate attributeName="stroke-dashoffset"
-                      from="25" to="0" dur={e.dur} repeatCount="indefinite" />
-                  </path>
-                  {/* label — painted outline so it's always readable */}
-                  <text x={e.lx} y={e.ly} textAnchor="middle" fontSize="10"
-                    fontFamily="ui-monospace, monospace" fontWeight="600"
-                    stroke="#ffffff" strokeWidth="3.5" paintOrder="stroke"
-                    fill={e.color} opacity="0.9">
-                    {e.label}
-                  </text>
-                </g>
-              ))}
-
-              {/* ── NODES ── */}
-              {NODES.map(n => (
-                <g key={n.id}>
-                  {/* pulsing halo */}
-                  <rect
-                    x={n.cx - n.hw - 10} y={n.cy - n.hh - 10}
-                    width={(n.hw + 10) * 2} height={(n.hh + 10) * 2}
-                    rx="18" fill={n.color} opacity="0.1"
-                    filter={`url(#${glowId(n.color)})`}>
-                    <animate attributeName="opacity"
-                      values="0.07;0.22;0.07" dur="2.8s" repeatCount="indefinite" />
-                  </rect>
-                  {/* box */}
-                  <rect
-                    x={n.cx - n.hw} y={n.cy - n.hh}
-                    width={n.hw * 2} height={n.hh * 2}
-                    rx="10" fill="rgba(255,255,255,0.88)"
-                    stroke={n.color} strokeWidth="1.6"
-                  />
-                  {/* label */}
-                  <text x={n.cx} y={n.cy - 3} textAnchor="middle"
-                    fontSize="12.5" fontFamily="system-ui,sans-serif" fontWeight="700"
-                    fill={n.color} filter={`url(#${glowId(n.color)})`}>
-                    {n.label}
-                  </text>
-                  {/* sub */}
-                  <text x={n.cx} y={n.cy + 13} textAnchor="middle"
-                    fontSize="9.5" fontFamily="ui-monospace,monospace"
-                    fill="rgba(71,85,105,0.72)">
-                    {n.sub}
-                  </text>
-                </g>
-              ))}
-            </svg>
+            {hasMermaid ? (
+              <MermaidDiagram code={project.mermaid_diagram} projectId={project.id} />
+            ) : (
+              <StaticDiagram />
+            )}
           </div>
         </div>
       </div>
@@ -147,10 +177,9 @@ export default function ArchitectView({ project }: { project: Project }) {
                 border border-white/80 text-slate-500 text-[10px] flex items-center justify-center font-bold font-mono">
                 {s.icon}
               </span>
-              <span className="text-slate-400 text-[10px] font-mono uppercase tracking-wider">AI step</span>
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider truncate">{s.title}</p>
             </div>
-            <div className="text-slate-900 text-sm font-bold leading-snug">{s.title}</div>
-            <div className="text-slate-500 text-xs mt-1 font-mono leading-relaxed">{s.sub}</div>
+            <p className="text-xs text-slate-400 truncate">{s.sub}</p>
           </div>
         ))}
       </div>

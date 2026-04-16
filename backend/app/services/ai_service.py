@@ -135,8 +135,9 @@ Output rules:
 - unique_aspects: 2-3 concrete technical differentiators that reference specific patterns or approaches.
 - tech_challenge: 2-3 sentences about the hardest engineering problems in this project. Be specific — mention concurrency issues, consistency guarantees, state management complexity, data pipeline challenges, or security concerns.
 - design_decisions: 3-5 ADRs. Each must name the CHOSEN approach AND the rejected alternative with a clear reason (e.g. "Chose RabbitMQ over Kafka because this project's message volume doesn't justify Kafka's operational complexity, and RabbitMQ's routing flexibility fits the multi-tenant notification patterns better").
-- Roadmap: 4-6 phases. Each has 3-4 goals, 2-3 deliverables, and 2-4 skills the developer will master.
+- Roadmap: 4-6 phases. Each has 3-4 goals, 2-3 deliverables, 2-4 skills, a "pitfall" (1-2 sentences warning about the most common mistake developers make in this phase — be specific, name the anti-pattern and its consequence), and "tools" (1-3 specific dev tool recommendations with one-line explanations of why they help in this phase).
 - Tasks: 14-20 total, distributed across phases.
+- mermaid_diagram: a valid Mermaid.js flowchart (graph TD or graph LR) showing the project's data flow architecture. Include the main components (client, API, database, external services, queues, etc.) with labeled edges showing what data flows between them. Use subgraphs to group related services. Keep it under 30 lines.
 
 Return this exact JSON structure:
 {{
@@ -145,6 +146,7 @@ Return this exact JSON structure:
     "business_value": "Specific measurable outcome",
     "unique_aspects": "2-3 technical differentiators",
     "tech_challenge": "2-3 sentences on the hardest engineering problems",
+    "mermaid_diagram": "graph TD\n  A[Client] -->|REST| B[API Gateway]\n  B --> C[Service]\n  C --> D[(Database)]",
     "design_decisions": [
         {{
             "title": "Chosen approach vs rejected alternative",
@@ -157,7 +159,9 @@ Return this exact JSON structure:
             "description": "What this phase achieves and proves",
             "goals": ["Goal 1", "Goal 2", "Goal 3"],
             "deliverables": ["Deliverable 1", "Deliverable 2"],
-            "skills": ["Skill 1", "Skill 2", "Skill 3"]
+            "skills": ["Skill 1", "Skill 2", "Skill 3"],
+            "pitfall": "The most common mistake in this phase and its consequence",
+            "tools": ["Tool: why it helps here"]
         }}
     ],
     "tasks": [
@@ -466,6 +470,8 @@ def format_roadmap(roadmap_data: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "goals": phase.get("goals", []),
             "deliverables": phase.get("deliverables", []),
             "skills": phase.get("skills", []),
+            "pitfall": phase.get("pitfall", ""),
+            "tools": phase.get("tools", []),
         })
     return formatted
 

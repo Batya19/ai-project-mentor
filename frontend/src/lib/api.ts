@@ -45,6 +45,8 @@ export interface RoadmapPhase {
   goals: string[]
   deliverables: string[]
   skills: string[]
+  pitfall: string
+  tools: string[]
 }
 
 export interface Task {
@@ -72,6 +74,7 @@ export interface Project {
   business_value: string
   unique_aspects: string
   tech_challenge: string
+  mermaid_diagram: string
   design_decisions: DesignDecision[]
   technologies: string[]
   roadmap: RoadmapPhase[]
