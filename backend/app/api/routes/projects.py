@@ -67,6 +67,16 @@ def generate_project(
     # Format the generated data into project structure
     formatted_roadmap = format_roadmap(ai_result.get("roadmap", []))
     formatted_tasks = format_tasks(ai_result.get("tasks", []))
+
+    # Merge user technologies with AI-recommended ones
+    user_techs = [t.strip() for t in payload.technologies]
+    user_techs_lower = {t.lower() for t in user_techs}
+    ai_recommended = [
+        t.strip()
+        for t in ai_result.get("recommended_technologies", [])
+        if t.strip().lower() not in user_techs_lower
+    ]
+    all_technologies = user_techs + ai_recommended
     
     # Create ProjectCreate schema with generated data
     project_create = ProjectCreate(
@@ -76,7 +86,8 @@ def generate_project(
         domain=domain,
         business_value=payload.business_value or ai_result.get("business_value", ""),
         unique_aspects=payload.unique_aspects or ai_result.get("unique_aspects", ""),
-        technologies=payload.technologies,
+        technologies=all_technologies,
+        user_technologies=user_techs,
         roadmap=formatted_roadmap,
         tasks=formatted_tasks,
         progress=0,

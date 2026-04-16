@@ -21,6 +21,7 @@ class ProjectCreate(BaseModel):
     business_value: str = Field(default="")
     unique_aspects: str = Field(default="")
     technologies: list[str] = Field(default_factory=list)
+    user_technologies: list[str] = Field(default_factory=list)
     roadmap: list[dict[str, Any]] = Field(default_factory=list)
     tasks: list[dict[str, Any]] = Field(default_factory=list)
     progress: int = Field(default=0, ge=0, le=100)
@@ -68,6 +69,7 @@ class ProjectResponse(BaseModel):
     business_value: str
     unique_aspects: str
     technologies: list[str]
+    user_technologies: list[str]
     roadmap: list[dict[str, Any]]
     tasks: list[dict[str, Any]]
     progress: int

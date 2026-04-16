@@ -26,6 +26,7 @@ class Project(Base):
     unique_aspects: Mapped[str] = mapped_column(Text, default="", nullable=False)
 
     technologies: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    user_technologies: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     roadmap: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list, nullable=False)
     tasks: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list, nullable=False)
     progress: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

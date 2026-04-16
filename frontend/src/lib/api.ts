@@ -77,6 +77,7 @@ export interface Project {
   mermaid_diagram: string
   design_decisions: DesignDecision[]
   technologies: string[]
+  user_technologies: string[]
   roadmap: RoadmapPhase[]
   tasks: Task[]
   progress: number

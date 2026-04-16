@@ -396,13 +396,24 @@ export default function ProjectDetailPage() {
             </span>
           </div>
           <p className="text-slate-500 text-sm leading-relaxed">{project.description}</p>
-          {project.technologies?.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-3">
-              {project.technologies.map((tech) => (
-                <span key={tech} className="text-xs bg-violet-100 text-violet-700 border border-violet-200 px-2.5 py-0.5 rounded-full font-medium">{tech}</span>
-              ))}
-            </div>
-          )}
+          {project.technologies?.length > 0 && (() => {
+            const userTechs = new Set((project.user_technologies ?? []).map(t => t.toLowerCase()))
+            const chosen = project.technologies.filter(t => userTechs.has(t.toLowerCase()))
+            const aiAdded = project.technologies.filter(t => !userTechs.has(t.toLowerCase()))
+            return (
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {chosen.map((tech) => (
+                  <span key={tech} className="text-xs bg-violet-100 text-violet-700 border border-violet-200 px-2.5 py-0.5 rounded-full font-medium">{tech}</span>
+                ))}
+                {aiAdded.map((tech) => (
+                  <span key={tech} className="text-xs bg-white/60 text-slate-500 border border-dashed border-slate-300 px-2.5 py-0.5 rounded-full font-medium flex items-center gap-1">
+                    <svg className="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            )
+          })()}
         </div>
 
         {/* ── Tech Challenge ── */}

@@ -134,6 +134,7 @@ Output rules:
 - business_value: a specific, measurable outcome (not "learn new things").
 - unique_aspects: 2-3 concrete technical differentiators that reference specific patterns or approaches.
 - tech_challenge: 2-3 sentences about the hardest engineering problems in this project. Be specific — mention concurrency issues, consistency guarantees, state management complexity, data pipeline challenges, or security concerns.
+- recommended_technologies: an array of 2-6 additional technologies/libraries/tools that the project NEEDS but the user did NOT list. These are your expert recommendations — databases, message queues, testing tools, CI tools, monitoring, linters, etc. Only include technologies NOT already in the user's list ({stack}). If the user's stack is complete, return an empty array.
 - design_decisions: 3-5 ADRs. Each must name the CHOSEN approach AND the rejected alternative with a clear reason (e.g. "Chose RabbitMQ over Kafka because this project's message volume doesn't justify Kafka's operational complexity, and RabbitMQ's routing flexibility fits the multi-tenant notification patterns better").
 - Roadmap: 4-6 phases. Each has 3-4 goals, 2-3 deliverables, 2-4 skills, a "pitfall" (1-2 sentences warning about the most common mistake developers make in this phase — be specific, name the anti-pattern and its consequence), and "tools" (1-3 specific dev tool recommendations with one-line explanations of why they help in this phase).
 - Tasks: 14-20 total, distributed across phases.
@@ -153,6 +154,7 @@ Return this exact JSON structure:
             "rationale": "1-2 sentences with specific reasoning for THIS project"
         }}
     ],
+    "recommended_technologies": ["Tech the user didn't pick but the project needs"],
     "roadmap": [
         {{
             "phase": "Phase 1: Domain Core & Technical Spike",
