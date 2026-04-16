@@ -26,6 +26,7 @@ def create_project(db: Session, user_id: str, payload: ProjectCreate) -> Project
         business_value=payload.business_value,
         unique_aspects=payload.unique_aspects,
         technologies=payload.technologies,
+        user_technologies=payload.user_technologies,
         roadmap=payload.roadmap,
         tasks=payload.tasks,
         progress=payload.progress,
