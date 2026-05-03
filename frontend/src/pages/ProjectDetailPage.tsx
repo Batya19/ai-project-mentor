@@ -78,66 +78,6 @@ function computeDailyStreak(tasks: Task[]): number {
   return streak
 }
 
-/** Number of tasks completed within the last 48 h (for per-phase vibe). */
-function _recentTaskCount(tasks: Task[]): number {
-  const cutoff = Date.now() - 48 * 60 * 60 * 1000
-  return tasks.filter(
-    (t) => t.completed && t.completed_at && new Date(t.completed_at).getTime() >= cutoff
-  ).length
-}
-
-function buildMotivationMessage({
-  totalTasks,
-  completedPhases,
-  totalPhases,
-  dailyStreak,
-  activePhaseName,
-}: {
-  totalTasks: number
-  completedPhases: number
-  totalPhases: number
-  dailyStreak: number
-  activePhaseName?: string
-}) {
-  if (totalTasks === 0) {
-    return "No tasks yet. Regenerate the plan once the roadmap has real work to track."
-  }
-
-  if (completedPhases === totalPhases && totalPhases > 0) {
-    return `All ${completedPhases} phases are closed. You finished the roadmap end to end.`
-  }
-
-  if (dailyStreak >= 7) {
-    return `${dailyStreak}-day build streak. That kind of consistency is rare — keep the chain intact.`
-  }
-
-  if (dailyStreak >= 3) {
-    return `${dailyStreak} days in a row with progress. Build streaks compound — do not break it today.`
-  }
-
-  if (completedPhases >= 2 && activePhaseName) {
-    return `${completedPhases} phases closed. Keep the momentum into ${activePhaseName}.`
-  }
-
-  if (completedPhases === 1 && activePhaseName) {
-    return `First phase locked. Push into ${activePhaseName} before the context fades.`
-  }
-
-  if (dailyStreak === 2) {
-    return `2 days of progress in a row. One more makes it a real streak.`
-  }
-
-  if (dailyStreak === 1 && activePhaseName) {
-    return `You shipped something today in ${activePhaseName}. Come back tomorrow to start a streak.`
-  }
-
-  if (activePhaseName) {
-    return `No recent activity. Pick one task in ${activePhaseName} and start moving again.`
-  }
-
-  return "No recent activity. Pick any task and create the first day of a streak."
-}
-
 /* ── Zigzag node offsets for organic abstract roadmap ── */
 const NODE_OFFSETS: Array<{ side: "left" | "right"; pad: string }> = [
   { side: "left",  pad: "pr-8 sm:pr-16 lg:pr-24" },
@@ -312,21 +252,6 @@ export default function ProjectDetailPage() {
   const doneTasks = project?.tasks?.filter((t) => t.completed).length ?? 0
   const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0
   const dailyStreak = project ? computeDailyStreak(project.tasks) : 0
-  const completedPhases = project?.roadmap.filter((phase) => {
-    const phaseTasks = project.tasks.filter((task) => task.phase === phase.phase)
-    return phaseTasks.length > 0 && phaseTasks.every((task) => task.completed)
-  }).length ?? 0
-  const currentPhase = project?.roadmap.find((phase) => {
-    const phaseTasks = project.tasks.filter((task) => task.phase === phase.phase)
-    return phaseTasks.some((task) => !task.completed)
-  })
-  const _motivationMessage = buildMotivationMessage({
-    totalTasks,
-    completedPhases,
-    totalPhases: project?.roadmap.length ?? 0,
-    dailyStreak,
-    activePhaseName: currentPhase?.phase,
-  })
   const [archiView, setArchiView] = useState(false)
 
   if (isLoading) return <div className="min-h-screen bg-[#faf9ff] flex items-center justify-center text-slate-400">Loading</div>
