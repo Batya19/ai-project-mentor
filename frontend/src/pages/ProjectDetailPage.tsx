@@ -79,7 +79,7 @@ function computeDailyStreak(tasks: Task[]): number {
 }
 
 /** Number of tasks completed within the last 48 h (for per-phase vibe). */
-function recentTaskCount(tasks: Task[]): number {
+function _recentTaskCount(tasks: Task[]): number {
   const cutoff = Date.now() - 48 * 60 * 60 * 1000
   return tasks.filter(
     (t) => t.completed && t.completed_at && new Date(t.completed_at).getTime() >= cutoff
@@ -251,8 +251,8 @@ export default function ProjectDetailPage() {
     enabled: !!id,
   })
 
-  const [aiCoachMessage, setAiCoachMessage] = useState<string | null>(null)
-  const [coachLoading, setCoachLoading] = useState(false)
+  const [_aiCoachMessage, setAiCoachMessage] = useState<string | null>(null)
+  const [_coachLoading, setCoachLoading] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
 
@@ -320,7 +320,7 @@ export default function ProjectDetailPage() {
     const phaseTasks = project.tasks.filter((task) => task.phase === phase.phase)
     return phaseTasks.some((task) => !task.completed)
   })
-  const motivationMessage = buildMotivationMessage({
+  const _motivationMessage = buildMotivationMessage({
     totalTasks,
     completedPhases,
     totalPhases: project?.roadmap.length ?? 0,
